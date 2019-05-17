@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.order.OrderInvestMapper">
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderInvestDO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="order_invest_id" jdbcType="BIGINT" property="orderInvestId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="contract_number" jdbcType="VARCHAR" property="contractNumber"/>
+        <result column="merchant_number" jdbcType="VARCHAR" property="merchantNumber"/>
+        <result column="account_number" jdbcType="VARCHAR" property="accountNumber"/>
+        <result column="order_no" jdbcType="BIGINT" property="orderNo"/>
+        <result column="portfolio_code" jdbcType="VARCHAR" property="portfolioCode"/>
+        <result column="transaction_amount" jdbcType="DECIMAL" property="transactionAmount"/>
+        <result column="transaction_status" jdbcType="TINYINT" property="transactionStatus"/>
+        <result column="transaction_charge" jdbcType="DECIMAL" property="transactionCharge"/>
+        <result column="response_code" jdbcType="VARCHAR" property="responseCode"/>
+        <result column="response_message" jdbcType="VARCHAR" property="responseMessage"/>
+        <result column="invest_type" jdbcType="TINYINT" property="investType"/>
+        <result column="third_portfolio_id" jdbcType="VARCHAR" property="thirdPortfolioId"/>
+        <result column="channel" jdbcType="TINYINT" property="channel"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="yn" jdbcType="TINYINT" property="yn"/>
+    </resultMap>
+
+    <resultMap id="ResultMapIncludeUserInfo" type="com.snb.deal.bo.order.OrderInvestAdminBO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="order_invest_id" jdbcType="BIGINT" property="orderInvestId"/>
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="contract_number" jdbcType="VARCHAR" property="contractNumber"/>
+        <result column="merchant_number" jdbcType="VARCHAR" property="merchantNumber"/>
+        <result column="account_number" jdbcType="VARCHAR" property="accountNumber"/>
+        <result column="order_no" jdbcType="BIGINT" property="orderNo"/>
+        <result column="portfolio_code" jdbcType="VARCHAR" property="portfolioCode"/>
+        <result column="transaction_amount" jdbcType="DECIMAL" property="transactionAmount"/>
+        <result column="transaction_charge" jdbcType="DECIMAL" property="transactionCharge"/>
+        <result column="transaction_status" jdbcType="TINYINT" property="transactionStatus"/>
+        <result column="response_code" jdbcType="VARCHAR" property="responseCode"/>
+        <result column="response_message" jdbcType="VARCHAR" property="responseMessage"/>
+        <result column="invest_type" jdbcType="TINYINT" property="investType"/>
+        <result column="third_portfolio_id" jdbcType="VARCHAR" property="thirdPortfolioId"/>
+        <result column="channel" jdbcType="TINYINT" property="channel"/>
+        <result column="create_time"  property="createTime"/>
+        <result column="update_time"  property="updateTime"/>
+        <result column="yn" jdbcType="TINYINT" property="yn"/>
+        <!-- 平台手机号 -->
+        <result column="phone" property="phone"/>
+        <!-- 用户姓名 -->
+        <result column="name" property="name"/>
+        <!-- 交易完成时间 -->
+        <result column="priced_date" property="pricedDate"/>
+        <!-- 下单时间 -->
+        <result column="order_date" jdbcType="TIMESTAMP" property="orderDate"/>
+    </resultMap>
+
+    <resultMap id="OrderSyncResultMap" type="com.snb.deal.bo.order.OrderInvestBO">
+        <result column="user_id" jdbcType="BIGINT" property="userId"/>
+        <result column="order_no" jdbcType="BIGINT" property="orderNo"/>
+        <result column="order_status" jdbcType="TINYINT" property="orderStatus"/>
+        <result column="channel" jdbcType="TINYINT" property="channel"/>
+        <result column="account_number" jdbcType="VARCHAR" property="accountNumber"/>
+        <result column="contract_number" jdbcType="VARCHAR" property="contractNumber"/>
+        <result column="merchant_number" jdbcType="VARCHAR" property="merchantNumber"/>
+        <result column="order_invest_id" jdbcType="BIGINT" property="orderInvestId"/>
+        <result column="portfolio_code" jdbcType="VARCHAR" property="portfolioCode"/>
+        <result column="invest_type" jdbcType="TINYINT" property="investType"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, order_invest_id, user_id, contract_number, merchant_number, account_number, order_no,
+    portfolio_code, transaction_amount, transaction_status, transaction_charge, response_code, response_message,
+    invest_type, third_portfolio_id, channel, create_time, update_time, yn
+    </sql>
+
+    <sql id="insertColumn">
+        order_invest_id, user_id, contract_number, merchant_number, account_number, order_no,
+    portfolio_code, transaction_amount, transaction_status, transaction_charge, response_code, response_message,
+    invest_type, third_portfolio_id, channel
+    </sql>
+
+
+
+    <insert id="insert" parameterType="com.snb.deal.entity.order.OrderInvestDO">
+        insert into order_invest (
+        <include refid="insertColumn"/>
+        )
+        values ( #{orderInvestId,jdbcType=BIGINT}, #{userId,jdbcType=BIGINT},
+        #{contractNumber,jdbcType=VARCHAR}, #{merchantNumber,jdbcType=VARCHAR},
+        #{accountNumber,jdbcType=VARCHAR},
+        #{orderNo,jdbcType=BIGINT}, #{portfolioCode,jdbcType=VARCHAR},
+        #{transactionAmount,jdbcType=DECIMAL},
+        #{transactionStatus,jdbcType=TINYINT}, #{transactionCharge,jdbcType=DECIMAL},
+        #{responseCode,jdbcType=VARCHAR},#{responseMessage,jdbcType=VARCHAR},
+        #{investType,jdbcType=TINYINT}, #{thirdPortfolioId,jdbcType=VARCHAR}, #{channel,jdbcType=TINYINT}
+                )
+    </insert>
+
+
+    <!-- 查询买入订单列表 -->
+    <select id="listByOrderInvestListCondition" resultMap="ResultMapIncludeUserInfo">
+        SELECT
+            oi.id,
+            oi.order_invest_id,
+            oi.user_id,
+            oi.contract_number,
+            oi.merchant_number,
+            oi.account_number,
+            oi.order_no,
+            oi.portfolio_code,
+            oi.transaction_amount,
+            oi.transaction_charge,
+            oi.transaction_status,
+            oi.response_code,
+            oi.response_message,
+            oi.invest_type,
+            oi.third_portfolio_id,
+            oi.channel,
+            oi.create_time,
+            oi.update_time,
+            oi.yn,
+            oi.create_time as order_date,
+            ui.phone,
+            ui.name,
+            toi.transaction_finish_time as priced_date
+        FROM `order_invest` oi
+        INNER JOIN `user_info` ui ON oi.user_id = ui.`user_id`
+        INNER JOIN `order_info` toi on toi.order_no = oi.order_no
+        WHERE oi.yn = 0 AND ui.yn = 0  AND toi.yn = 0
+        <if test="phone != null and phone != ''">
+            and phone = #{phone}
+        </if>
+        <if test="merchantNumber != null and merchantNumber != ''">
+            and merchant_number = #{merchantNumber}
+        </if>
+        ORDER BY oi.create_time DESC
+    </select>
+
+    <update id="updateOrderInvest" parameterType="com.snb.deal.entity.order.OrderInvestDO">
+        update order_invest
+        <set>
+            <if test="transactionStatus != null">
+                transaction_status=#{transactionStatus},
+            </if>
+            <if test="responseCode != null">
+                response_code=#{responseCode},
+            </if>
+            <if test="responseMessage != null">
+                response_message=#{responseMessage},
+            </if>
+            <if test="transactionAmount != null">
+                transaction_amount=#{transactionAmount},
+            </if>
+            <if test="transactionCharge != null">
+                transaction_charge=#{transactionCharge},
+            </if>
+            <if test="thirdPortfolioId != null">
+                third_portfolio_id=#{thirdPortfolioId},
+            </if>
+        </set>
+        where order_invest_id=#{orderInvestId} and yn=0
+    </update>
+
+    <select id="queryByOrderNo" resultMap="BaseResultMap" parameterType="com.snb.deal.entity.order.OrderInvestDO">
+        select
+        <include refid="Base_Column_List"/>
+        from order_invest
+        where order_no=#{orderNo,jdbcType=BIGINT}
+        <if test="investType != null">
+            and invest_type=#{investType}
+        </if>
+        and yn=0
+    </select>
+
+    <select id="querySyncOrderList" resultMap="OrderSyncResultMap">
+        SELECT
+          oi.`user_id`,
+          oi.`order_no`,
+          oi.`order_status`,
+          oi.`channel`,
+          oin.`account_number`,
+          oin.`merchant_number`,
+          oin.`order_invest_id`,
+          oin.`portfolio_code`,
+          oin.`invest_type`
+        FROM
+          order_info oi
+          INNER JOIN order_invest oin
+            ON oi.`order_no` = oin.`order_no` AND oi.`business_code` IN
+            <foreach collection="businessCode" item="code" index="index"
+                     open="(" close=")" separator=",">
+                #{code}
+            </foreach>
+             AND oi.`order_status`=#{orderStatus} AND oi.`channel`=#{channel} AND oi.yn=0 AND oin.`yn`=0
+
+    </select>
+
+    <select id="getByMerchantNumberAndChannel" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_invest oi where oi.merchant_number=#{merchantNumber} and oi.channel=#{channel} and oi.yn=0
+    </select>
+
+    <select id="getByOrderInvestId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_invest oi where oi.order_invest_id=#{orderInvestId} and oi.yn=0
+    </select>
+
+    <select id="count"  resultType="Long">
+        SELECT
+        count(*) as countNum from order_invest where user_id=#{userId} and invest_type=#{investType} and yn=0
+    </select>
+
+    <select id="listByAutoInvestCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_invest
+        WHERE yn = 0 and invest_type = 2
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        ORDER BY create_time DESC
+    </select>
+</mapper>

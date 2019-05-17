@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.order.OrderInvestDetailMapper">
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderInvestDetailDO">
+        <id column="id" jdbcType="BIGINT" property="id" />
+        <result column="order_invest_detail_id" jdbcType="BIGINT" property="orderInvestDetailId" />
+        <result column="user_id" jdbcType="VARCHAR" property="userId" />
+        <result column="order_invest_id" jdbcType="BIGINT" property="orderInvestId" />
+        <result column="merchant_number" jdbcType="VARCHAR" property="merchantNumber" />
+        <result column="contract_number" jdbcType="VARCHAR" property="contractNumber" />
+        <result column="fund_code" jdbcType="VARCHAR" property="fundCode" />
+        <result column="fund_name" jdbcType="VARCHAR" property="fundName" />
+        <result column="cancel_enable" jdbcType="VARCHAR" property="cancelEnable" />
+        <result column="canceled_date" jdbcType="TIMESTAMP" property="canceledDate" />
+        <result column="bank_code" jdbcType="VARCHAR" property="bankCode" />
+        <result column="bank_number" jdbcType="VARCHAR" property="bankNumber" />
+        <result column="transaction_amount" jdbcType="DECIMAL" property="transactionAmount" />
+        <result column="transaction_unit" jdbcType="DECIMAL" property="transactionUnit" />
+        <result column="transaction_rate" jdbcType="DECIMAL" property="transactionRate" />
+        <result column="discount_rate" jdbcType="DECIMAL" property="discountRate" />
+        <result column="transaction_charge" jdbcType="DECIMAL" property="transactionCharge" />
+        <result column="discount_transaction_charge" jdbcType="DECIMAL" property="discountTransactionCharge" />
+        <result column="order_date" jdbcType="TIMESTAMP" property="orderDate" />
+        <result column="transaction_date" jdbcType="TIMESTAMP" property="transactionDate" />
+        <result column="transaction_cfm_lag_day" jdbcType="TINYINT" property="transactionCfmLagDay" />
+        <result column="transaction_price" jdbcType="DECIMAL" property="transactionPrice" />
+        <result column="priced_date" jdbcType="TIMESTAMP" property="pricedDate" />
+        <result column="expected_confirmed_date" jdbcType="TIMESTAMP" property="expectedConfirmedDate" />
+        <result column="completed_date" jdbcType="TIMESTAMP" property="completedDate" />
+        <result column="settlement_date" jdbcType="TIMESTAMP" property="settlementDate" />
+        <result column="transaction_status" jdbcType="INTEGER" property="transactionStatus" />
+        <result column="investor_pay_id" jdbcType="INTEGER" property="investorPayId" />
+        <result column="reason" jdbcType="VARCHAR" property="reason" />
+        <result column="rspId" jdbcType="INTEGER" property="rspId" />
+        <result column="transaction_type" jdbcType="VARCHAR" property="transactionType" />
+        <result column="portfolio_code" jdbcType="VARCHAR" property="portfolioCode" />
+        <result column="portfolio_id" jdbcType="VARCHAR" property="portfolioId" />
+        <result column="void_date" jdbcType="TIMESTAMP" property="voidDate"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+        <result column="yn" jdbcType="TINYINT" property="yn" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, order_invest_detail_id, user_id, order_invest_id, merchant_number, contract_number,
+        fund_code, fund_name, cancel_enable, canceled_date, bank_code, bank_number, transaction_amount,
+        transaction_unit, transaction_rate, discount_rate, transaction_charge, discount_transaction_charge,
+        order_date, transaction_date, transaction_cfm_lag_day, transaction_price, priced_date,
+        expected_confirmed_date, completed_date, settlement_date, transaction_status, investor_pay_id,
+        reason, rspId, transaction_type, portfolio_code, portfolio_id, void_date, create_time, update_time,
+        yn
+    </sql>
+
+    <sql id="insertColumn">
+        order_invest_detail_id, user_id, order_invest_id, merchant_number, contract_number,
+        fund_code, fund_name, cancel_enable, canceled_date, bank_code, bank_number, transaction_amount,
+        transaction_unit, transaction_rate, discount_rate, transaction_charge, discount_transaction_charge,
+        order_date, transaction_date, transaction_cfm_lag_day, transaction_price, priced_date,
+        expected_confirmed_date, completed_date, settlement_date, transaction_status, investor_pay_id,
+        reason, rspId, transaction_type, portfolio_code, portfolio_id,void_date
+    </sql>
+
+    <insert id="insert" parameterType="com.snb.deal.entity.order.OrderInvestDetailDO">
+        insert into order_invest_detail (
+            <include refid="insertColumn"/>
+        )
+        values (#{orderInvestDetailId,jdbcType=BIGINT}, #{userId,jdbcType=VARCHAR},
+                                       #{orderInvestId,jdbcType=BIGINT}, #{merchantNumber,jdbcType=VARCHAR},
+                                       #{contractNumber,jdbcType=VARCHAR},
+                                       #{fundCode,jdbcType=VARCHAR}, #{fundName,jdbcType=VARCHAR},
+                                       #{cancelEnable,jdbcType=VARCHAR}, #{canceledDate,jdbcType=DATE},
+                                       #{bankCode,jdbcType=VARCHAR}, #{bankNumber,jdbcType=VARCHAR},
+                                       #{transactionAmount,jdbcType=DECIMAL},#{transactionUnit,jdbcType=DECIMAL},
+                                       #{transactionRate,jdbcType=DECIMAL}, #{discountRate,jdbcType=DECIMAL},
+            #{transactionCharge,jdbcType=DECIMAL},
+            #{discountTransactionCharge,jdbcType=DECIMAL}, #{orderDate,jdbcType=DATE},
+            #{transactionDate,jdbcType=DATE},
+            #{transactionCfmLagDay,jdbcType=TINYINT}, #{transactionPrice,jdbcType=DECIMAL},
+            #{pricedDate,jdbcType=DATE},#{expectedConfirmedDate,jdbcType=DATE},
+            #{completedDate,jdbcType=DATE},#{settlementDate,jdbcType=DATE},#{transactionStatus,jdbcType=TINYINT},
+            #{investorPayId,jdbcType=INTEGER},
+            #{reason,jdbcType=VARCHAR}, #{rspId,jdbcType=INTEGER},#{transactionType,jdbcType=VARCHAR},
+            #{portfolioCode,jdbcType=VARCHAR}, #{portfolioId,jdbcType=VARCHAR},#{voidDate,jdbcType=DATE}
+
+                )
+    </insert>
+    <update id="update" parameterType="com.snb.deal.entity.order.OrderInvestDetailDO">
+        update order_invest_detail
+        set
+            cancel_enable                 =#{cancelEnable},
+            canceled_date                 =#{canceledDate},
+            bank_code                     =#{bankCode},
+            bank_number                   =#{bankNumber},
+            transaction_amount            =#{transactionAmount},
+            transaction_unit              =#{transactionUnit},
+            transaction_rate              =#{transactionRate},
+            discount_rate                 =#{discountRate},
+            transaction_charge             =#{transactionCharge},
+            discount_transaction_charge    =#{discountTransactionCharge},
+            order_date                    =#{orderDate},
+            transaction_date              =#{transactionDate},
+            transaction_cfm_lag_day       =#{transactionCfmLagDay},
+            transaction_price               =#{transactionPrice},
+            priced_date                   =#{pricedDate},
+            expected_confirmed_date       =#{expectedConfirmedDate},
+            completed_date                =#{completedDate},
+            settlement_date               =#{settlementDate},
+            transaction_status            =#{transactionStatus},
+            investor_pay_id               =#{investorPayId},
+            reason                        =#{reason},
+            rspId                         =#{rspId},
+            transaction_type              =#{transactionType},
+            portfolio_code                 =#{portfolioCode},
+            portfolio_id                  =#{portfolioId},
+            void_date                  =#{voidDate}
+        where order_invest_detail_id = #{orderInvestDetailId,jdbcType=BIGINT} and yn=0
+    </update>
+
+
+    <select id="listByOrderInvestDetailCondition" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_invest_detail
+        WHERE yn = 0
+        <if test="orderInvestId != null">
+            and order_invest_id = #{orderInvestId}
+        </if>
+    </select>
+
+    <insert id="insertBatch" parameterType="java.util.List" useGeneratedKeys="true">
+        insert into order_invest_detail (
+          <include refid="insertColumn"/>
+        ) VALUES
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (
+            #{item.orderInvestDetailId,jdbcType=BIGINT}, #{item.userId,jdbcType=VARCHAR},
+            #{item.orderInvestId,jdbcType=BIGINT}, #{item.merchantNumber,jdbcType=VARCHAR},
+            #{item.contractNumber,jdbcType=VARCHAR},
+            #{item.fundCode,jdbcType=VARCHAR}, #{item.fundName,jdbcType=VARCHAR},
+            #{item.cancelEnable,jdbcType=VARCHAR}, #{item.canceledDate,jdbcType=DATE},
+            #{item.bankCode,jdbcType=VARCHAR}, #{item.bankNumber,jdbcType=VARCHAR},
+            #{item.transactionAmount,jdbcType=DECIMAL},#{item.transactionUnit,jdbcType=DECIMAL},
+            #{item.transactionRate,jdbcType=DECIMAL}, #{item.discountRate,jdbcType=DECIMAL},
+            #{item.transactionCharge,jdbcType=DECIMAL},
+            #{item.discountTransactionCharge,jdbcType=DECIMAL}, #{item.orderDate,jdbcType=DATE},
+            #{item.transactionDate,jdbcType=DATE},
+            #{item.transactionCfmLagDay,jdbcType=TINYINT}, #{item.transactionPrice,jdbcType=DECIMAL},
+            #{item.pricedDate,jdbcType=DATE},#{item.expectedConfirmedDate,jdbcType=DATE},
+            #{item.completedDate,jdbcType=DATE},#{item.settlementDate,jdbcType=DATE},#{item.transactionStatus,jdbcType=TINYINT},
+            #{item.investorPayId,jdbcType=INTEGER},
+            #{item.reason,jdbcType=VARCHAR}, #{item.rspId,jdbcType=INTEGER},#{item.transactionType,jdbcType=VARCHAR},
+            #{item.portfolioCode,jdbcType=VARCHAR}, #{item.portfolioId,jdbcType=VARCHAR},
+            #{item.voidDate,jdbcType=DATE}
+            )
+        </foreach>
+    </insert>
+
+    <select id="queryInvestDetail" parameterType="com.snb.deal.entity.order.OrderInvestDetailDO" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_invest_detail
+        where yn=0
+        <if test="orderInvestId != null">
+            and order_invest_id=#{orderInvestId}
+        </if>
+        <if test="fundCode != null">
+            and fund_code=#{fundCode}
+        </if>
+    </select>
+</mapper>

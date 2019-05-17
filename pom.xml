@@ -1,0 +1,262 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <artifactId>snb-deal</artifactId>
+    <packaging>jar</packaging>
+
+    <parent>
+        <groupId>com.snb</groupId>
+        <artifactId>snb-parent</artifactId>
+        <version>1.0.1-SNAPSHOT</version>
+    </parent>
+
+    <properties>
+        <snb-common.version>1.0.7.RELEASE</snb-common.version>
+        <snb-third-api.version>1.0.7.RELEASE</snb-third-api.version>
+        <snb-deal-api.version>1.0.8.RELEASE</snb-deal-api.version>
+        <snb-deal-admin-api.version>1.0.3.RELEASE</snb-deal-admin-api.version>
+        <snb-user-api.version>1.0.7.RELEASE</snb-user-api.version>
+        <snb-fund-api.version>1.0.5.RELEASE</snb-fund-api.version>
+    </properties>
+
+
+    <dependencies>
+        <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-pool2</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>druid</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>mysql</groupId>
+            <artifactId>mysql-connector-java</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.javassist</groupId>
+            <artifactId>javassist</artifactId>
+        </dependency>
+
+        <!--log-->
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+        </dependency>
+
+        <!--lombok-->
+        <dependency>
+            <groupId>org.projectlombok</groupId>
+            <artifactId>lombok</artifactId>
+        </dependency>
+
+        <!--guava-->
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+        </dependency>
+
+        <!--javax.el-->
+        <dependency>
+            <groupId>org.glassfish.web</groupId>
+            <artifactId>javax.el</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>javax.el</groupId>
+            <artifactId>javax.el-api</artifactId>
+        </dependency>
+
+        <!--jcommander-->
+        <dependency>
+            <groupId>com.beust</groupId>
+            <artifactId>jcommander</artifactId>
+        </dependency>
+
+        <!--dubbo-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.javassist</groupId>
+                    <artifactId>javassist</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>javax.servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>log4j</groupId>
+                    <artifactId>log4j</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>commons-logging</groupId>
+                    <artifactId>commons-logging</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <!--springboot-->
+        <dependency>
+            <groupId>org.mybatis.spring.boot</groupId>
+            <artifactId>mybatis-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <!-- 分页插件 -->
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper-spring-boot-starter</artifactId>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.pagehelper</groupId>
+            <artifactId>pagehelper</artifactId>
+        </dependency>
+        <!--jianlc-->
+        <dependency>
+            <groupId>com.jianlc.spring.boot</groupId>
+            <artifactId>starter-config-tookit</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jianlc</groupId>
+            <artifactId>jianlc-schedule</artifactId>
+            <exclusions>
+                <exclusion>
+                    <artifactId>slf4j-log4j12</artifactId>
+                    <groupId>org.slf4j</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+
+        <dependency>
+            <groupId>com.jianlc.tc</groupId>
+            <artifactId>gen-guid</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jianlc.tc</groupId>
+            <artifactId>config-center</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jianlc.tc</groupId>
+            <artifactId>jtracker-client</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jianlc.tc</groupId>
+            <artifactId>jtracker-dubbo-plugin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jianlc.tc</groupId>
+            <artifactId>jtracker-mybatis-plugin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jianlc.tc</groupId>
+            <artifactId>jtracker-logback-plugin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jianlc.tc</groupId>
+            <artifactId>jtracker-rabbitmq-plugin</artifactId>
+            <version>${jtracker.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>com.jianlc.tc</groupId>
+            <artifactId>dubbo-plugin</artifactId>
+            <exclusions>
+                <exclusion>
+                    <groupId>javax.servlet</groupId>
+                    <artifactId>servlet-api</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring-webmvc</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.jianlc.spring.boot</groupId>
+            <artifactId>starter-shutdown-gracefully</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.jianlc</groupId>
+            <artifactId>jianlc-event</artifactId>
+        </dependency>
+
+        <!--snb-->
+        <dependency>
+            <groupId>com.snb</groupId>
+            <artifactId>snb-common</artifactId>
+            <version>${snb-common.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.snb</groupId>
+            <artifactId>snb-third-api</artifactId>
+            <version>${snb-third-api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.snb</groupId>
+            <artifactId>snb-deal-api</artifactId>
+            <version>${snb-deal-api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.snb</groupId>
+            <artifactId>snb-deal-admin-api</artifactId>
+            <version>${snb-deal-admin-api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.snb</groupId>
+            <artifactId>snb-user-api</artifactId>
+            <version>${snb-user-api.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.snb</groupId>
+            <artifactId>snb-fund-api</artifactId>
+            <version>${snb-fund-api.version}</version>
+        </dependency>
+    </dependencies>
+
+
+    <build>
+        <finalName>snb-deal</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <configuration>
+                    <mainClass>com.snb.deal.ApplicationMain</mainClass>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>

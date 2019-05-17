@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.order.OrderRebalanceFailureRecordMapper">
+
+  <!--基础结果集-->
+  <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderRebalanceFailureRecordDO">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="order_rebalance_failure_id" jdbcType="BIGINT" property="orderRebalanceFailureId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="merchant_number" jdbcType="VARCHAR" property="merchantNumber" />
+    <result column="rebalance_type" jdbcType="TINYINT" property="rebalanceType" />
+    <result column="request_info" jdbcType="VARCHAR" property="requestInfo" />
+    <result column="response_info" jdbcType="VARCHAR" property="responseInfo" />
+    <result column="err_message" jdbcType="VARCHAR" property="errMessage" />
+    <result column="err_code" jdbcType="VARCHAR" property="errCode" />
+    <result column="channel" jdbcType="TINYINT" property="channel" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="TINYINT" property="yn" />
+  </resultMap>
+
+  <!--公共字段 -->
+  <sql id="Base_Column_List">
+    id, order_rebalance_failure_id, user_id, merchant_number, rebalance_type, request_info,
+    response_info, err_message, err_code, channel, create_time, update_time, yn
+  </sql>
+
+  <!--新增 -->
+  <insert id="insert" parameterType="com.snb.deal.entity.order.OrderRebalanceFailureRecordDO">
+    insert into order_rebalance_failure_record (order_rebalance_failure_id, user_id,
+      merchant_number, rebalance_type, request_info, 
+      response_info, err_message, err_code, 
+      channel)
+    values (#{orderRebalanceFailureId,jdbcType=BIGINT}, #{userId,jdbcType=VARCHAR},
+      #{merchantNumber,jdbcType=VARCHAR}, #{rebalanceType,jdbcType=TINYINT}, #{requestInfo,jdbcType=VARCHAR}, 
+      #{responseInfo,jdbcType=VARCHAR}, #{errMessage,jdbcType=VARCHAR}, #{errCode,jdbcType=VARCHAR}, 
+      #{channel,jdbcType=TINYINT})
+  </insert>
+
+</mapper>

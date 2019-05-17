@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.plan.PlanPortfolioRelMapper">
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.plan.PlanPortfolioRelDO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="plan_portfolio_rel_id" jdbcType="BIGINT" property="planPortfolioRelId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="plan_id" jdbcType="BIGINT" property="planId"/>
+        <result column="main_model_id" jdbcType="BIGINT" property="mainModelId"/>
+        <result column="third_portfolio_id" jdbcType="VARCHAR" property="thirdPortfolioId"/>
+        <result column="channel" jdbcType="TINYINT" property="channel"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="yn" jdbcType="TINYINT" property="yn"/>
+    </resultMap>
+
+    <resultMap id="PlanPortfolioResultMap" type="com.snb.deal.entity.plan.PlanPortfolioModel">
+        <result column="plan_portfolio_rel_id" jdbcType="BIGINT" property="planPortfolioRelId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="plan_id" jdbcType="BIGINT" property="planId"/>
+        <result column="main_model_id" jdbcType="BIGINT" property="mainModelId"/>
+        <result column="third_portfolio_id" jdbcType="VARCHAR" property="thirdPortfolioId"/>
+        <result column="channel" jdbcType="TINYINT" property="channel"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="fund_main_model_name" jdbcType="VARCHAR" property="fundMainModelName"/>
+        <result column="third_portfolio_code" jdbcType="VARCHAR" property="thirdPortfolioCode"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, plan_portfolio_rel_id, user_id, plan_id, main_model_id, third_portfolio_id, channel,
+        create_time, update_time, yn
+    </sql>
+
+    <insert id="insert" parameterType="com.snb.deal.entity.plan.PlanPortfolioRelDO">
+        insert into plan_portfolio_rel
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="planPortfolioRelId != null">
+                plan_portfolio_rel_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="planId != null">
+                plan_id,
+            </if>
+            <if test="mainModelId != null">
+                main_model_id,
+            </if>
+            <if test="thirdPortfolioId != null">
+                third_portfolio_id,
+            </if>
+            <if test="channel != null">
+                channel,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="planPortfolioRelId != null">
+                #{planPortfolioRelId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="planId != null">
+                #{planId,jdbcType=VARCHAR},
+            </if>
+            <if test="mainModelId != null">
+                #{mainModelId,jdbcType=VARCHAR},
+            </if>
+            <if test="thirdPortfolioId != null">
+                #{thirdPortfolioId,jdbcType=VARCHAR},
+            </if>
+            <if test="channel != null">
+                #{channel,jdbcType=TINYINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null">
+                #{yn,jdbcType=TINYINT},
+            </if>
+        </trim>
+    </insert>
+
+    <select id="selectUserPlanPortfolioModel" resultMap="PlanPortfolioResultMap">
+        SELECT
+            ppr.*,
+            fmm.`fund_main_model_name`,
+            fmm.`third_portfolio_code`
+        FROM
+            `plan_portfolio_rel` ppr
+            INNER JOIN `fund_main_model` fmm
+                ON ppr.`main_model_id` = fmm.`fund_main_model_id`
+        WHERE ppr.`user_id` = #{userId}
+              AND ppr.`plan_id` = #{planId}
+              AND ppr.`yn` = 0
+
+    </select>
+
+    <select id="listPlanPortfolioRel" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from plan_portfolio_rel ppr
+        where ppr.yn = 0
+        <if test="planId != null">
+            and ppr.plan_id = #{planId}
+        </if>
+        <if test="userId != null and userId != ''">
+            and ppr.user_id = #{userId}
+        </if>
+        <if test="channel != null">
+            and ppr.channel = #{channel}
+        </if>
+    </select>
+
+    <!-- 通过模型Id查询用户-调仓定时任务 -->
+    <select id="getBatchRebalanceUserList" resultMap="BaseResultMap">
+        SELECT
+            plan_portfolio_rel_id,
+            user_id,
+            plan_id,
+            main_model_id,
+            third_portfolio_id,
+            channel
+        FROM plan_portfolio_rel
+        WHERE main_model_id = #{fundMainModelId} AND yn = 0
+        ORDER BY id ASC
+        LIMIT #{startIndex}, #{count}
+    </select>
+
+    <select id="selectByChannel" resultMap="BaseResultMap">
+        SELECT
+          <include refid="Base_Column_List"/>
+        from plan_portfolio_rel ppr
+        where ppr.channel=#{channel} and ppr.third_portfolio_id != '' and yn=0
+    </select>
+
+    <update id="updateThirdPortfolioId">
+        update plan_portfolio_rel
+        set third_portfolio_id=#{thirdPortfolioId} where plan_portfolio_rel_id=#{planPortfolioRelId} and yn=0
+    </update>
+
+    <select id="selectByUserIdAndChannel" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from plan_portfolio_rel ppr
+        where ppr.user_id=#{userId} AND ppr.channel=#{channel} and yn=0
+    </select>
+
+    <select id="selectByPortfolioId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from plan_portfolio_rel ppr
+        where ppr.user_id=#{userId} AND ppr.third_portfolio_id=#{portfolioId} AND ppr.channel=#{channel} and yn=0
+    </select>
+
+    <select id="selectPlanPortfolioModelByUserId" resultMap="PlanPortfolioResultMap">
+        SELECT
+        ppr.*,
+        fmm.`fund_main_model_name`,
+        fmm.`third_portfolio_code`
+        FROM
+        `plan_portfolio_rel` ppr
+        INNER JOIN `fund_main_model` fmm
+        ON ppr.`main_model_id` = fmm.`fund_main_model_id`
+        WHERE ppr.`user_id` = #{userId}
+        AND ppr.`yn` = 0
+
+    </select>
+
+</mapper>

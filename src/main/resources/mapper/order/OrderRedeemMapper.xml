@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.snb.deal.mapper.order.OrderRedeemMapper">
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderRedeemDO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="order_redeem_id" property="orderRedeemId" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="order_no" property="orderNo" jdbcType="BIGINT"/>
+        <result column="transaction_status" property="transactionStatus" jdbcType="INTEGER"/>
+        <result column="merchant_number" property="merchantNumber" jdbcType="VARCHAR"/>
+        <result column="account_number" property="accountNumber" jdbcType="VARCHAR"/>
+        <result column="portfolio_code" property="portfolioCode" jdbcType="VARCHAR"/>
+        <result column="portfolio_id" property="portfolioId" jdbcType="VARCHAR"/>
+        <result column="payment_method" property="paymentMethod" jdbcType="INTEGER"/>
+        <result column="investor_pay_id" property="investorPayId" jdbcType="INTEGER"/>
+        <result column="transaction_amount" property="transactionAmount" jdbcType="DECIMAL"/>
+        <result column="transaction_charge" property="transactionCharge" jdbcType="DECIMAL"/>
+        <result column="response_code" property="responseCode" jdbcType="VARCHAR"/>
+        <result column="response_message" property="responseMessage" jdbcType="VARCHAR"/>
+        <result column="channel" property="channel" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="yn" property="yn" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <resultMap id="ResultMapIncludeUserInfo" type="com.snb.deal.bo.order.OrderRedeemAdminBO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="order_redeem_id" property="orderRedeemId" jdbcType="VARCHAR"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="order_no" property="orderNo" jdbcType="BIGINT"/>
+        <result column="transaction_status" property="transactionStatus" jdbcType="INTEGER"/>
+        <result column="merchant_number" property="merchantNumber" jdbcType="VARCHAR"/>
+        <result column="account_number" property="accountNumber" jdbcType="VARCHAR"/>
+        <result column="portfolio_code" property="portfolioCode" jdbcType="VARCHAR"/>
+        <result column="portfolio_id" property="portfolioId" jdbcType="VARCHAR"/>
+        <result column="payment_method" property="paymentMethod" jdbcType="INTEGER"/>
+        <result column="investor_pay_id" property="investorPayId" jdbcType="INTEGER"/>
+        <result column="transaction_amount" property="transactionAmount" jdbcType="DECIMAL"/>
+        <result column="transaction_charge" property="transactionCharge" jdbcType="DECIMAL"/>
+        <result column="response_code" property="responseCode" jdbcType="VARCHAR"/>
+        <result column="response_message" property="responseMessage" jdbcType="VARCHAR"/>
+        <result column="channel" property="channel" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="yn" property="yn" jdbcType="TINYINT"/>
+        <!-- 最大到账日期 -->
+        <result column="transaction_finish_time" property="transactionFinishTime"/>
+        <!-- 平台手机号 -->
+        <result column="phone" property="phone"/>
+        <!-- 用户姓名 -->
+        <result column="name" property="name"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, order_redeem_id, user_id, order_no, transaction_status, merchant_number, account_number,
+    portfolio_code,portfolio_id, payment_method, investor_pay_id, transaction_amount, transaction_charge,
+    response_code, response_message, channel, create_time, update_time, yn
+  </sql>
+    <select id="query" resultMap="BaseResultMap" parameterType="com.snb.deal.entity.order.OrderRedeemDO">
+        select
+        <include refid="Base_Column_List"/>
+        from order_redeem
+        <where>
+            yn=0
+            <if test="transactionStatus!=null">
+                AND transaction_status=#{transactionStatus,jdbcType=INTEGER}
+            </if>
+            <if test="userId!=null">
+                AND user_id=#{userId,jdbcType=VARCHAR}
+            </if>
+            <if test="orderNo!=null">
+                AND order_no=#{orderNo,jdbcType=BIGINT}
+            </if>
+            <if test="merchantNumber!=null">
+                AND merchant_number=#{merchantNumber,jdbcType=VARCHAR}
+            </if>
+            <if test="accountNumber!=null">
+                AND account_number=#{accountNumber,jdbcType=TINYINT}
+            </if>
+            <if test="portfolioCode!=null">
+                AND portfolio_code=#{portfolioCode,jdbcType=VARCHAR}
+            </if>
+            <if test="portfolioId!=null">
+                AND portfolio_id=#{portfolioId,jdbcType=VARCHAR}
+            </if>
+            <if test="channel!=null">
+                AND channel=#{channel,jdbcType=TINYINT}
+            </if>
+        </where>
+    </select>
+
+    <select id="queryOrder" resultMap="BaseResultMap">
+        select
+        ore.id, ore.order_redeem_id, ore.user_id, ore.order_no, ore.transaction_status, ore.merchant_number, ore.account_number,
+        ore.portfolio_code,ore.portfolio_id, ore.payment_method, ore.investor_pay_id, ore.transaction_amount, ore.transaction_charge,
+        ore.response_code, ore.response_message, ore.channel, ore.create_time, ore.update_time, ore.yn
+        from order_info oi
+        inner join order_redeem ore on oi.order_no=ore.order_no
+        where oi.order_status=#{orderStatus}
+        and oi.channel=#{channel}
+        and oi.business_code=#{businessCode}
+        and oi.yn=0 and ore.yn=0
+        order by oi.id desc limit #{limit},#{end}
+    </select>
+
+    <select id="queryByOrderNo" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from order_redeem
+        where order_no=#{orderNo,jdbcType=BIGINT} and yn=0
+    </select>
+
+    <select id="queryReceiving" resultMap="BaseResultMap" parameterType="java.lang.Integer">
+        select
+        ore.id, ore.order_redeem_id, ore.user_id, ore.order_no, ore.transaction_status, ore.merchant_number, ore.account_number,
+        ore.portfolio_code,ore.portfolio_id, ore.payment_method, ore.investor_pay_id, ore.transaction_amount, ore.transaction_charge,
+        ore.response_code, ore.response_message, ore.channel, ore.create_time, ore.update_time, ore.yn
+        from order_info oi
+        inner join order_redeem ore on oi.order_no=ore.order_no
+        where ore.transaction_status=200 and oi.order_status=1
+        and oi.yn=0 and ore.yn=0
+        order by oi.id desc limit #{limit}
+    </select>
+
+    <insert id="insert" parameterType="com.snb.deal.entity.order.OrderRedeemDO">
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into order_redeem (id, order_redeem_id, user_id,
+        order_no, transaction_status, merchant_number,
+        account_number, portfolio_code,portfolio_id, payment_method,
+        investor_pay_id, transaction_amount, transaction_charge,
+        response_code, response_message, channel
+        )
+        values (#{id,jdbcType=BIGINT}, #{orderRedeemId,jdbcType=VARCHAR}, #{userId,jdbcType=VARCHAR},
+        #{orderNo,jdbcType=BIGINT}, #{transactionStatus,jdbcType=INTEGER}, #{merchantNumber,jdbcType=VARCHAR},
+        #{accountNumber,jdbcType=VARCHAR}, #{portfolioCode,jdbcType=VARCHAR}, #{portfolioId,jdbcType=VARCHAR},
+        #{paymentMethod,jdbcType=INTEGER},
+        #{investorPayId,jdbcType=INTEGER}, #{transactionAmount,jdbcType=DECIMAL}, #{transactionCharge,jdbcType=DECIMAL},
+        #{responseCode,jdbcType=VARCHAR}, #{responseMessage,jdbcType=VARCHAR}, #{channel,jdbcType=TINYINT}
+        )
+    </insert>
+
+    <update id="updateByOrderNo" parameterType="com.snb.deal.entity.order.OrderRedeemDO">
+        update order_redeem
+        <set>
+            <if test="transactionStatus != null">
+                transaction_status = #{transactionStatus,jdbcType=INTEGER},
+            </if>
+            <if test="transactionAmount != null">
+                transaction_amount = #{transactionAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="transactionCharge != null">
+                transaction_charge = #{transactionCharge,jdbcType=DECIMAL},
+            </if>
+            <if test="responseCode != null">
+                response_code = #{responseCode,jdbcType=VARCHAR},
+            </if>
+            <if test="responseMessage != null">
+                response_message = #{responseMessage,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where order_no = #{orderNo,jdbcType=BIGINT}
+    </update>
+
+    <select id="listByOrderRedeemListCondition" resultMap="ResultMapIncludeUserInfo">
+        SELECT
+        ore.id,
+        ore.order_redeem_id,
+        ore.user_id,
+        ore.order_no,
+        ore.transaction_status,
+        ore.merchant_number,
+        ore.account_number,
+        ore.portfolio_code,
+        ore.portfolio_id,
+        ore.payment_method,
+        ore.investor_pay_id,
+        ore.transaction_amount,
+        ore.transaction_charge,
+        ore.response_code,
+        ore.response_message,
+        ore.channel,
+        ore.create_time,
+        ore.update_time,
+        ore.yn,
+        ui.phone,
+        ui.name,
+        oi.transaction_finish_time
+        FROM `order_redeem` ore
+        INNER JOIN `user_info` ui ON ore.user_id = ui.`user_id`
+        INNER JOIN `order_info` oi on ore.order_no = oi.order_no
+        WHERE ore.yn = 0 AND ui.yn = 0 AND oi.yn = 0
+        <if test="phone != null and phone != ''">
+            and ui.phone = #{phone}
+        </if>
+        <if test="merchantNumber != null and merchantNumber != ''">
+            and ore.merchant_number = #{merchantNumber}
+        </if>
+        ORDER BY ore.create_time desc
+    </select>
+
+    <select id="queryByMerchantNumber" resultMap="BaseResultMap">
+        SELECT
+        ore.id,
+        ore.order_redeem_id,
+        ore.user_id,
+        ore.order_no,
+        ore.transaction_status,
+        ore.merchant_number,
+        ore.account_number,
+        ore.portfolio_code,
+        ore.portfolio_id,
+        ore.payment_method,
+        ore.investor_pay_id,
+        ore.transaction_amount,
+        ore.transaction_charge,
+        ore.response_code,
+        ore.response_message,
+        ore.channel,
+        ore.create_time,
+        ore.update_time,
+        ore.yn
+        FROM `order_redeem` ore
+        INNER JOIN `order_info` oi on ore.order_no = oi.order_no
+        WHERE ore.yn = 0 AND oi.yn = 0 AND ore.merchant_number = #{merchantNumber}
+        AND ore.channel = #{channel} AND oi.channel = #{channel} AND oi.order_status=1
+    </select>
+
+    <select id="queryByMerchantNum" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM order_redeem
+        WHERE merchant_number = #{merchantNumber} AND channel = #{channel} AND yn = 0
+    </select>
+</mapper>

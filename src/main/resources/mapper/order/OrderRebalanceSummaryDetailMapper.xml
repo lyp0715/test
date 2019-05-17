@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.order.OrderRebalanceSummaryDetailMapper">
+
+  <!--基础结果集-->
+  <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderRebalanceSummaryDetailDO">
+    <result column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_rebalance_summary_detail_id" jdbcType="BIGINT" property="orderRebalanceSummaryDetailId" />
+    <result column="order_rebalance_summary_id" jdbcType="BIGINT" property="orderRebalanceSummaryId" />
+    <result column="fund_code" jdbcType="VARCHAR" property="fundCode" />
+    <result column="fund_name" jdbcType="VARCHAR" property="fundName" />
+    <result column="transaction_charge" jdbcType="DECIMAL" property="transactionCharge" />
+    <result column="transaction_type" jdbcType="TINYINT" property="transactionType" />
+    <result column="investment_amount" jdbcType="DECIMAL" property="investmentAmount" />
+    <result column="investment_units" jdbcType="DECIMAL" property="investmentUnits" />
+    <result column="post_proportion" jdbcType="DECIMAL" property="postProportion" />
+    <result column="pre_proportion" jdbcType="DECIMAL" property="preProportion" />
+    <result column="fund_type" jdbcType="VARCHAR" property="fundType" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="TINYINT" property="yn" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+    <result column="channel" jdbcType="VARCHAR" property="channel"/>
+  </resultMap>
+
+
+  <!--公共字段-->
+  <sql id="Base_Column_List">
+    id, order_rebalance_summary_detail_id, order_rebalance_summary_id, fund_code, fund_name,
+    transaction_charge, transaction_type, investment_amount, investment_units, post_proportion, 
+    pre_proportion, fund_type, create_time, update_time, yn,user_id,channel
+  </sql>
+
+
+  <!--新增 -->
+  <insert id="insert" parameterType="com.snb.deal.entity.order.OrderRebalanceSummaryDetailDO">
+    insert into order_rebalance_summary_detail (order_rebalance_summary_detail_id,
+      order_rebalance_summary_id, fund_code, fund_name, 
+      transaction_charge, transaction_type, investment_amount, 
+      investment_units, post_proportion, pre_proportion, fund_type,user_id,channel)
+    values (#{id,jdbcType=BIGINT}, #{orderRebalanceSummaryDetailId,jdbcType=BIGINT}, 
+      #{orderRebalanceSummaryId,jdbcType=BIGINT}, #{fundCode,jdbcType=VARCHAR}, #{fundName,jdbcType=VARCHAR}, 
+      #{transactionCharge,jdbcType=DECIMAL}, #{transactionType,jdbcType=TINYINT}, #{investmentAmount,jdbcType=DECIMAL}, 
+      #{investmentUnits,jdbcType=DECIMAL}, #{postProportion,jdbcType=DECIMAL}, #{preProportion,jdbcType=DECIMAL}, 
+      #{fundType,jdbcType=VARCHAR},#{userId,jdbcType=VARCHAR},#{channel,jdbcType=TINYINT})
+  </insert>
+
+  <!-- 批量新增 -->
+  <insert id="batchInsert" useGeneratedKeys="true" parameterType="java.util.List">
+    insert into order_rebalance_summary_detail (
+    order_rebalance_summary_detail_id,
+    order_rebalance_summary_id,
+    fund_code,
+    fund_name,
+    transaction_charge,
+    transaction_type,
+    investment_amount,
+    investment_units,
+    post_proportion,
+    pre_proportion,
+    fund_type,
+    user_id,
+    channel)
+    values
+    <foreach collection="list" item="item" index="index" separator=",">
+      (
+      #{item.orderRebalanceSummaryDetailId},
+      #{item.orderRebalanceSummaryId},
+      #{item.fundCode},
+      #{item.fundName},
+      #{item.transactionCharge},
+      #{item.transactionType},
+      #{item.investmentAmount},
+      #{item.investmentUnits},
+      #{item.postProportion},
+      #{item.preProportion},
+      #{item.fundType},
+      #{item.userId},
+      #{item.channel})
+    </foreach>
+  </insert>
+
+  <!--通过条件查询基金调仓概要信息(调仓前预期)-明细-->
+  <select id="queryOrderRebalanceSummaryDetail" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceSummaryConditionBO" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from order_rebalance_summary_detail
+    where yn =0
+
+    <if test="orderRebalanceSummaryId != null">
+      and order_rebalance_summary_id = #{orderRebalanceSummaryId}
+    </if>
+
+    <if test="transactionType != null">
+      and transaction_type = #{transactionType}
+    </if>
+
+    <if test="userId != null">
+      and user_id = #{userId}
+    </if>
+    <if test="channel != null">
+      and channel = #{channel}
+    </if>
+
+  </select>
+
+</mapper>

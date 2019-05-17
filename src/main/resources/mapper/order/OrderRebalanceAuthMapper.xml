@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.order.OrderRebalanceAuthMapper">
+
+  <!--基础结果集-->
+  <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderRebalanceAuthDO">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_rebalance_auth_id" jdbcType="BIGINT" property="orderRebalanceAuthId" />
+    <result column="order_rebalance_id" jdbcType="BIGINT" property="orderRebalanceId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="auth_status" jdbcType="TINYINT" property="authStatus" />
+    <result column="channel" jdbcType="TINYINT" property="channel" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="TINYINT" property="yn" />
+  </resultMap>
+
+  <!--公共字段-->
+  <sql id="Base_Column_List">
+    id, order_rebalance_auth_id, order_rebalance_id, user_id, auth_status, channel, create_time, 
+    update_time, yn
+  </sql>
+
+
+  <!-- 新增 -->
+  <insert id="insert" parameterType="com.snb.deal.entity.order.OrderRebalanceAuthDO">
+    insert into order_rebalance_auth (order_rebalance_auth_id, order_rebalance_id,
+      user_id, auth_status, channel)
+    values (#{orderRebalanceAuthId,jdbcType=BIGINT}, #{orderRebalanceId,jdbcType=BIGINT},
+      #{userId,jdbcType=VARCHAR}, #{authStatus,jdbcType=TINYINT}, #{channel,jdbcType=TINYINT})
+  </insert>
+
+
+  <!--更新状态 -->
+  <update id="update" parameterType="com.snb.deal.entity.order.OrderRebalanceAuthDO">
+    update order_rebalance_auth set update_time = now()
+      <if test="authStatus != null">
+        ,auth_status = #{authStatus}
+      </if>
+      where order_rebalance_id =#{orderRebalanceId} and yn=0
+  </update>
+
+  <!-- 通过查询条件查询数量 -->
+  <select id="queryOrderRebalanceAuthCount" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceAuthConditionBO"
+          resultType="Long">
+    SELECT
+      count(*) as countNum
+    FROM order_rebalance_auth
+    WHERE yn = 0
+    <if test="authStatus != null">
+       and auth_status = #{authStatus}
+    </if>
+    <if test="userId != null">
+      and user_id = #{userId}
+    </if>
+    <if test="channel != null">
+      and channel = #{channel}
+    </if>
+    <if test="orderRebalanceId != null">
+      and order_rebalance_id = #{orderRebalanceId}
+    </if>
+    <if test="startTime != null">
+      AND create_time &gt;= #{startTime}
+    </if>
+    <if test="endTime != null">
+      AND create_time &lt; #{endTime}
+    </if>
+  </select>
+
+
+  <!-- 通过查询条件查询数量 -->
+  <select id="queryOrderRebalanceAuth" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceAuthConditionBO"
+          resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM order_rebalance_auth
+    WHERE yn = 0
+    <if test="authStatus != null">
+      and auth_status = #{authStatus}
+    </if>
+    <if test="userId != null">
+      and user_id = #{userId}
+    </if>
+    <if test="channel != null">
+      and channel = #{channel}
+    </if>
+    <if test="orderRebalanceId != null">
+      and order_rebalance_id = #{orderRebalanceId}
+    </if>
+  </select>
+
+  <!-- 通过查询条件查询数量 -->
+  <select id="currentDayUnAuthCount" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceAuthConditionBO"
+          resultType="Long">
+    SELECT
+    count(1) as countNum
+    FROM order_rebalance_auth
+    WHERE yn = 0 and create_time >  DATE_FORMAT(NOW(),'%Y-%m-%d %00:%00:%00')
+    <if test="authStatus != null">
+      and auth_status = #{authStatus}
+    </if>
+    <if test="userId != null">
+      and user_id = #{userId}
+    </if>
+    <if test="channel != null">
+      and channel = #{channel}
+    </if>
+    <if test="orderRebalanceId != null">
+      and order_rebalance_id = #{orderRebalanceId}
+    </if>
+  </select>
+
+  <select id="selectLastUnProcessByUserId" resultMap="BaseResultMap">
+    SELECT <include refid="Base_Column_List"/>
+    FROM order_rebalance_auth
+    WHERE yn = 0 AND user_id = #{userId} AND auth_status &gt; 1 AND auth_status &lt; 4 LIMIT 1
+  </select>
+
+
+
+</mapper>

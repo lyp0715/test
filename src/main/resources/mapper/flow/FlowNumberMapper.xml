@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.snb.deal.mapper.flow.FlowNumberMapper">
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.flow.FlowNumberDO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="flow_num" property="flowNum" jdbcType="VARCHAR"/>
+        <result column="flow_type" property="flowType" jdbcType="TINYINT"/>
+        <result column="version" property="version" jdbcType="BIGINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="yn" property="yn" jdbcType="TINYINT"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, flow_num, flow_type, version,create_time, update_time, yn
+    </sql>
+
+
+    <insert id="insert" parameterType="com.snb.deal.entity.flow.FlowNumberDO">
+        insert into flow_number (id, flow_num, flow_type)
+        values (#{id,jdbcType=BIGINT}, #{flowNum,jdbcType=VARCHAR}, #{flowType,jdbcType=TINYINT})
+    </insert>
+
+
+    <select id="get" resultMap="BaseResultMap" parameterType="com.snb.deal.entity.flow.FlowNumberDO">
+        select
+        <include refid="Base_Column_List"/>
+        from flow_number
+        where flow_type=#{flowType,jdbcType=TINYINT}
+        <![CDATA[
+		 	and create_time>= #{startDate} and create_time<= #{endDate}
+		 ]]>
+        and yn=0
+        order by id asc limit 1
+    </select>
+
+
+    <update id="updateYnByVersion" parameterType="com.snb.deal.entity.flow.FlowNumberDO">
+        update flow_number
+        set yn = 1,version =  version + 1
+        where flow_type=#{flowType,jdbcType=TINYINT} and flow_num=#{flowNum,jdbcType=VARCHAR} and version=#{version,jdbcType=BIGINT}
+    </update>
+</mapper>

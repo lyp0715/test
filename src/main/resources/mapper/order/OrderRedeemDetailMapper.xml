@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.snb.deal.mapper.order.OrderRedeemDetailMapper">
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderRedeemDetailDO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="order_redeem_detail_id" property="orderRedeemDetailId" jdbcType="BIGINT"/>
+        <result column="order_redeem_id" property="orderRedeemId" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="account_number" property="accountNumber" jdbcType="VARCHAR"/>
+        <result column="bank_code" property="bankCode" jdbcType="VARCHAR"/>
+        <result column="bank_number" property="bankNumber" jdbcType="VARCHAR"/>
+        <result column="cancel_enable" property="cancelEnable" jdbcType="VARCHAR"/>
+        <result column="canceled_date" property="canceledDate" jdbcType="TIMESTAMP"/>
+        <result column="completed_date" property="completedDate" jdbcType="TIMESTAMP"/>
+        <result column="contract_number" property="contractNumber" jdbcType="VARCHAR"/>
+        <result column="discount_rate" property="discountRate" jdbcType="DECIMAL"/>
+        <result column="discount_transaction_charge" property="discountTransactionCharge" jdbcType="DECIMAL"/>
+        <result column="expected_confirmed_date" property="expectedConfirmedDate" jdbcType="TIMESTAMP"/>
+        <result column="fund_code" property="fundCode" jdbcType="VARCHAR"/>
+        <result column="fund_name" property="fundName" jdbcType="VARCHAR"/>
+        <result column="investor_pay_id" property="investorPayId" jdbcType="INTEGER"/>
+        <result column="merchant_number" property="merchantNumber" jdbcType="VARCHAR"/>
+        <result column="order_date" property="orderDate" jdbcType="TIMESTAMP"/>
+        <result column="pay_method" property="payMethod" jdbcType="INTEGER"/>
+        <result column="portfolio_id" property="portfolioId" jdbcType="VARCHAR"/>
+        <result column="priced_date" property="pricedDate" jdbcType="TIMESTAMP"/>
+        <result column="reason" property="reason" jdbcType="VARCHAR"/>
+        <result column="rsp_id" property="rspId" jdbcType="INTEGER"/>
+        <result column="settlement_date" property="settlementDate" jdbcType="TIMESTAMP"/>
+        <result column="transaction_amount" property="transactionAmount" jdbcType="DECIMAL"/>
+        <result column="transaction_charge" property="transactionCharge" jdbcType="DECIMAL"/>
+        <result column="transaction_date" property="transactionDate" jdbcType="TIMESTAMP"/>
+        <result column="transaction_price" property="transactionPrice" jdbcType="DECIMAL"/>
+        <result column="transaction_rate" property="transactionRate" jdbcType="DECIMAL"/>
+        <result column="transaction_status" property="transactionStatus" jdbcType="INTEGER"/>
+        <result column="transaction_type" property="transactionType" jdbcType="TINYINT"/>
+        <result column="transaction_unit" property="transactionUnit" jdbcType="DECIMAL"/>
+        <result column="void_date" property="voidDate" jdbcType="TIMESTAMP"/>
+        <result column="expected_deal_date" property="expectedDealDate" jdbcType="TIMESTAMP"/>
+        <result column="portfolio_code" property="portfolioCode" jdbcType="VARCHAR"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="yn" property="yn" jdbcType="TINYINT"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+        id, order_redeem_detail_id, order_redeem_id, user_id, account_number, bank_code,
+        bank_number, cancel_enable, canceled_date, completed_date, contract_number, discount_rate,
+        discount_transaction_charge, expected_confirmed_date, fund_code, fund_name, investor_pay_id,
+        merchant_number, order_date, pay_method, portfolio_id, priced_date, reason, rsp_id,
+        settlement_date, transaction_amount, transaction_charge, transaction_date, transaction_price,
+        transaction_rate, transaction_status, transaction_type, transaction_unit, void_date,
+        expected_deal_date, portfolio_code, create_time, update_time, yn
+      </sql>
+
+    <insert id="insert" parameterType="com.snb.deal.entity.order.OrderRedeemDetailDO">
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into order_redeem_detail (id, order_redeem_detail_id, order_redeem_id, user_id,
+        account_number, bank_code,bank_number, cancel_enable, canceled_date,
+        completed_date, contract_number, discount_rate,discount_transaction_charge, expected_confirmed_date,fund_code,
+        fund_name, investor_pay_id,merchant_number, order_date, pay_method,portfolio_id, priced_date, reason, rsp_id,
+        settlement_date, transaction_amount,transaction_charge, transaction_date, transaction_price,transaction_rate,
+        transaction_status, transaction_type,transaction_unit, void_date, expected_deal_date,portfolio_code)
+        values (#{id,jdbcType=BIGINT}, #{orderRedeemDetailId,jdbcType=BIGINT}, #{orderRedeemId,jdbcType=BIGINT},
+        #{userId,jdbcType=VARCHAR}, #{accountNumber,jdbcType=VARCHAR}, #{bankCode,jdbcType=VARCHAR},
+        #{bankNumber,jdbcType=VARCHAR}, #{cancelEnable,jdbcType=VARCHAR}, #{canceledDate,jdbcType=TIMESTAMP},
+        #{completedDate,jdbcType=TIMESTAMP}, #{contractNumber,jdbcType=VARCHAR}, #{discountRate,jdbcType=DECIMAL},
+        #{discountTransactionCharge,jdbcType=DECIMAL}, #{expectedConfirmedDate,jdbcType=TIMESTAMP},
+        #{fundCode,jdbcType=VARCHAR}, #{fundName,jdbcType=VARCHAR}, #{investorPayId,jdbcType=INTEGER},
+        #{merchantNumber,jdbcType=VARCHAR}, #{orderDate,jdbcType=TIMESTAMP}, #{payMethod,jdbcType=INTEGER},
+        #{portfolioId,jdbcType=VARCHAR}, #{pricedDate,jdbcType=TIMESTAMP}, #{reason,jdbcType=VARCHAR},
+        #{rspId,jdbcType=INTEGER}, #{settlementDate,jdbcType=TIMESTAMP}, #{transactionAmount,jdbcType=DECIMAL},
+        #{transactionCharge,jdbcType=DECIMAL}, #{transactionDate,jdbcType=TIMESTAMP}, #{transactionPrice,jdbcType=DECIMAL},
+        #{transactionRate,jdbcType=DECIMAL}, #{transactionStatus,jdbcType=INTEGER}, #{transactionType,jdbcType=TINYINT},
+        #{transactionUnit,jdbcType=DECIMAL}, #{voidDate,jdbcType=TIMESTAMP}, #{expectedDealDate,jdbcType=TIMESTAMP},
+        #{portfolioCode,jdbcType=VARCHAR})
+    </insert>
+    <!-- 批量插入数据 -->
+    <insert id="insertBatch" parameterType="java.util.List"
+            useGeneratedKeys="true">
+        <selectKey resultType="long" keyProperty="id" order="AFTER">
+            SELECT
+            LAST_INSERT_ID()
+        </selectKey>
+        insert into order_redeem_detail (
+        id, order_redeem_detail_id, order_redeem_id, user_id,
+        account_number, bank_code,bank_number, cancel_enable, canceled_date,
+        completed_date, contract_number, discount_rate,discount_transaction_charge, expected_confirmed_date,fund_code,
+        fund_name, investor_pay_id,merchant_number, order_date, pay_method,portfolio_id, priced_date, reason, rsp_id,
+        settlement_date, transaction_amount,transaction_charge, transaction_date, transaction_price,transaction_rate,
+        transaction_status, transaction_type,transaction_unit, void_date, expected_deal_date,portfolio_code
+        )
+        values
+        <foreach collection="list" item="item" index="index"
+                 separator=",">
+            (
+            #{item.id}, #{item.orderRedeemDetailId}, #{item.orderRedeemId}, #{item.userId}, #{item.accountNumber}, #{item.bankCode},
+            #{item.bankNumber}, #{item.cancelEnable}, #{item.canceledDate},#{item.completedDate}, #{item.contractNumber}, #{item.discountRate},
+            #{item.discountTransactionCharge}, #{item.expectedConfirmedDate},#{item.fundCode}, #{item.fundName}, #{item.investorPayId},
+            #{item.merchantNumber}, #{item.orderDate}, #{item.payMethod},#{item.portfolioId}, #{item.pricedDate}, #{item.reason},
+            #{item.rspId}, #{item.settlementDate}, #{item.transactionAmount},#{item.transactionCharge}, #{item.transactionDate}, #{item.transactionPrice},
+            #{item.transactionRate}, #{item.transactionStatus}, #{item.transactionType}, #{item.transactionUnit}, #{item.voidDate}, #{item.expectedDealDate},#{item.portfolioCode}
+            )
+        </foreach>
+    </insert>
+
+    <select id="queryByRedeemId" resultMap="BaseResultMap" parameterType="java.lang.String">
+        select
+        <include refid="Base_Column_List"/>
+        from order_redeem_detail
+        <where>
+            order_redeem_id=#{orderRedeemId,jdbcType=BIGINT} and yn=0
+        </where>
+    </select>
+
+    <delete id="delete" parameterType="java.lang.Long">
+        delete from order_redeem_detail
+        where order_redeem_detail_id = #{orderRedeemDetailId,jdbcType=BIGINT}
+    </delete>
+
+    <update id="update" parameterType="com.snb.deal.entity.order.OrderRedeemDetailDO">
+        update order_redeem_detail
+        <set >
+            <if test="orderRedeemId != null" >
+                order_redeem_id = #{orderRedeemId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null" >
+                user_id = #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="accountNumber != null" >
+                account_number = #{accountNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="bankCode != null" >
+                bank_code = #{bankCode,jdbcType=VARCHAR},
+            </if>
+            <if test="bankNumber != null" >
+                bank_number = #{bankNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="cancelEnable != null" >
+                cancel_enable = #{cancelEnable,jdbcType=VARCHAR},
+            </if>
+            <if test="canceledDate != null" >
+                canceled_date = #{canceledDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="completedDate != null" >
+                completed_date = #{completedDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="contractNumber != null" >
+                contract_number = #{contractNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="discountRate != null" >
+                discount_rate = #{discountRate,jdbcType=DECIMAL},
+            </if>
+            <if test="discountTransactionCharge != null" >
+                discount_transaction_charge = #{discountTransactionCharge,jdbcType=DECIMAL},
+            </if>
+            <if test="expectedConfirmedDate != null" >
+                expected_confirmed_date = #{expectedConfirmedDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="fundCode != null" >
+                fund_code = #{fundCode,jdbcType=VARCHAR},
+            </if>
+            <if test="fundName != null" >
+                fund_name = #{fundName,jdbcType=VARCHAR},
+            </if>
+            <if test="investorPayId != null" >
+                investor_pay_id = #{investorPayId,jdbcType=INTEGER},
+            </if>
+            <if test="merchantNumber != null" >
+                merchant_number = #{merchantNumber,jdbcType=VARCHAR},
+            </if>
+            <if test="orderDate != null" >
+                order_date = #{orderDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="payMethod != null" >
+                pay_method = #{payMethod,jdbcType=INTEGER},
+            </if>
+            <if test="portfolioId != null" >
+                portfolio_id = #{portfolioId,jdbcType=VARCHAR},
+            </if>
+            <if test="pricedDate != null" >
+                priced_date = #{pricedDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="reason != null" >
+                reason = #{reason,jdbcType=VARCHAR},
+            </if>
+            <if test="rspId != null" >
+                rsp_id = #{rspId,jdbcType=INTEGER},
+            </if>
+            <if test="settlementDate != null" >
+                settlement_date = #{settlementDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="transactionAmount != null" >
+                transaction_amount = #{transactionAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="transactionCharge != null" >
+                transaction_charge = #{transactionCharge,jdbcType=DECIMAL},
+            </if>
+            <if test="transactionDate != null" >
+                transaction_date = #{transactionDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="transactionPrice != null" >
+                transaction_price = #{transactionPrice,jdbcType=DECIMAL},
+            </if>
+            <if test="transactionRate != null" >
+                transaction_rate = #{transactionRate,jdbcType=DECIMAL},
+            </if>
+            <if test="transactionStatus != null" >
+                transaction_status = #{transactionStatus,jdbcType=INTEGER},
+            </if>
+            <if test="transactionType != null" >
+                transaction_type = #{transactionType,jdbcType=TINYINT},
+            </if>
+            <if test="transactionUnit != null" >
+                transaction_unit = #{transactionUnit,jdbcType=DECIMAL},
+            </if>
+            <if test="voidDate != null" >
+                void_date = #{voidDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="expectedDealDate != null" >
+                expected_deal_date = #{expectedDealDate,jdbcType=TIMESTAMP},
+            </if>
+            <if test="portfolioCode != null" >
+                portfolio_code = #{portfolioCode,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where order_redeem_detail_id = #{orderRedeemDetailId,jdbcType=BIGINT}
+    </update>
+    <select id="listOrderRedeemDetail" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        from order_redeem_detail
+        where yn = 0
+        <if test="orderRedeemId != null">
+            AND order_redeem_id = #{orderRedeemId}
+        </if>
+    </select>
+</mapper>

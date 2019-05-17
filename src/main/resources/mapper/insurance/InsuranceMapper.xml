@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.insurance.InsuranceMapper">
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.insurance.InsuranceDO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="insurance_id" jdbcType="BIGINT" property="insuranceId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="insurance_name" jdbcType="VARCHAR" property="insuranceName"/>
+        <result column="indemnification_amount" jdbcType="DECIMAL" property="indemnificationAmount"/>
+        <result column="insurance_no" jdbcType="VARCHAR" property="insuranceNo"/>
+        <result column="indemnification_time_limit" jdbcType="VARCHAR" property="indemnificationTimeLimit"/>
+        <result column="insured_name" jdbcType="VARCHAR" property="insuredName"/>
+        <result column="insured_phone" jdbcType="VARCHAR" property="insuredPhone"/>
+        <result column="insured_id_card" jdbcType="VARCHAR" property="insuredIdCard"/>
+        <result column="buy_amount" jdbcType="BIGINT" property="buyAmount"/>
+        <result column="insurance_status" jdbcType="INTEGER" property="insuranceStatus"/>
+        <result column="effective_date" jdbcType="TIMESTAMP" property="effectiveDate"/>
+        <result column="deadline_date" jdbcType="TIMESTAMP" property="deadlineDate"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="yn" jdbcType="TINYINT" property="yn"/>
+    </resultMap>
+
+    <resultMap id="insuranceResult" type="com.snb.deal.admin.api.dto.insurance.InsuranceResultDto">
+        <result column="user_id"  property="userId"/>
+        <result column="insured_name" property="insuredName"/>
+        <result column="insured_phone"  property="insuredPhone"/>
+        <result column="insured_id_card" property="insuredIdCard"/>
+    </resultMap>
+
+    <sql id="BaseColumn">
+        id, insurance_id, user_id,
+        insurance_name, indemnification_amount,
+        insurance_no, indemnification_time_limit,
+        insured_name, insured_id_card, buy_amount, insurance_status, effective_date,
+        deadline_date, create_time, update_time,
+        yn
+    </sql>
+    <insert id="insert" parameterType="com.snb.deal.entity.insurance.InsuranceDO">
+        INSERT INTO insurance (id, insurance_id, user_id,
+                               insurance_name, indemnification_amount,
+                               insurance_no, indemnification_time_limit,
+                               insured_name, insured_id_card,insured_phone,buy_amount, insurance_status, effective_date,
+                               deadline_date, create_time, update_time,reason,yn)
+        VALUES (#{id,jdbcType=BIGINT}, #{insuranceId,jdbcType=BIGINT}, #{userId,jdbcType=VARCHAR},
+                                       #{insuranceName,jdbcType=VARCHAR},
+                                       #{indemnificationAmount,jdbcType=DECIMAL},
+                                       #{insuranceNo,jdbcType=VARCHAR}, #{indemnificationTimeLimit,jdbcType=VARCHAR},
+                                       #{insuredName,jdbcType=VARCHAR}, #{insuredIdCard,jdbcType=VARCHAR},#{insuredPhone,jdbcType=VARCHAR},
+                                       #{buyAmount,jdbcType=BIGINT}, #{insuranceStatus,jdbcType=INTEGER},
+                                       #{effectiveDate,jdbcType=TIMESTAMP},
+                #{deadlineDate,jdbcType=TIMESTAMP}, #{createTime,jdbcType=TIMESTAMP}, #{updateTime,jdbcType=TIMESTAMP},#{reason,jdbcType=VARCHAR},
+                #{yn,jdbcType=TINYINT})
+    </insert>
+
+    <select id="selectByIdOrUserId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="BaseColumn"/>
+        FROM insurance
+        WHERE yn = 0
+        <if test="userId != null and userId != ''">
+            and user_id = #{userId}
+        </if>
+        <if test="insuranceId != null">
+            and insurance_id = #{insuranceId}
+        </if>
+    </select>
+
+    <select id="selectByUserId" resultMap="BaseResultMap">
+        select
+        <include refid="BaseColumn"/>
+        from insurance where user_id=#{userId} and yn=0
+    </select>
+
+    <update id="update" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update insurance
+            <set>
+                <if test="item.insuranceNo != ''">
+                    insurance_no = #{item.insuranceNo},
+                </if>
+                <if test="item.activateDate != ''">
+                    effective_date = #{item.activateDate},
+                </if>
+                <if test="item.endDate != ''">
+                    deadline_date = #{item.endDate},
+                </if>
+                insurance_status = #{item.insuranceStatus},
+                reason = #{item.reason}
+            </set>
+            where user_id = #{item.userId} and yn =0
+        </foreach>
+    </update>
+
+    <update id="updateInsuranceStatus" parameterType="String">
+        update insurance
+        <set>
+            insurance_status = #{status}
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <update id="deleteInsurance" parameterType="String">
+        update insurance
+        <set>
+            yn = 1
+        </set>
+        where user_id = #{userId}
+    </update>
+
+    <select id="selectInsuranceByTime" resultMap="insuranceResult">
+        SELECT user_id,insured_name,insured_phone,insured_id_card
+        FROM insurance
+        where yn = 0 and insurance_status =2
+        <![CDATA[
+		 	and create_time >= #{startTime} and create_time <= #{endTime}
+		 ]]>
+
+    </select>
+</mapper>

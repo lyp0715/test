@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.order.OrderRebalanceDetailMapper">
+
+    <!-- 基础结果集合-->
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderRebalanceDetailDO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="order_rebalance_detail_id" jdbcType="BIGINT" property="orderRebalanceDetailId"/>
+        <result column="order_rebalance_id" jdbcType="BIGINT" property="orderRebalanceId"/>
+        <result column="contract_number" jdbcType="VARCHAR" property="contractNumber"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="fund_code" jdbcType="VARCHAR" property="fundCode"/>
+        <result column="fund_name" jdbcType="VARCHAR" property="fundName"/>
+        <result column="invest_amount" jdbcType="DECIMAL" property="investAmount"/>
+        <result column="order_date" jdbcType="TIMESTAMP" property="orderDate"/>
+        <result column="reason" jdbcType="VARCHAR" property="reason"/>
+        <result column="redemption_unit" jdbcType="DECIMAL" property="redemptionUnit"/>
+        <result column="settlement_date" jdbcType="TIMESTAMP" property="settlementDate"/>
+        <result column="transaction_cfm_lag_day" jdbcType="TINYINT" property="transactionCfmLagDay"/>
+        <result column="transaction_date" jdbcType="TIMESTAMP" property="transactionDate"/>
+        <result column="transaction_settle_lag_day" jdbcType="TINYINT" property="transactionSettleLagDay"/>
+        <result column="transaction_status" jdbcType="INTEGER" property="transactionStatus"/>
+        <result column="transaction_type" jdbcType="TINYINT" property="transactionType"/>
+        <result column="transaction_rate" jdbcType="DECIMAL" property="transactionRate"/>
+        <result column="discount_rate" jdbcType="DECIMAL" property="discountRate"/>
+        <result column="transaction_charge" jdbcType="DECIMAL" property="transactionCharge"/>
+        <result column="bank_code" jdbcType="VARCHAR" property="bankCode"/>
+        <result column="account_number" jdbcType="VARCHAR" property="accountNumber"/>
+        <result column="bank_number" jdbcType="VARCHAR" property="bankNumber"/>
+        <result column="cancel_enable" jdbcType="VARCHAR" property="cancelEnable"/>
+        <result column="canceled_date" jdbcType="TIMESTAMP" property="canceledDate"/>
+        <result column="completed_date" jdbcType="TIMESTAMP" property="completedDate"/>
+        <result column="discount_transaction_charge" jdbcType="DECIMAL" property="discountTransactionCharge"/>
+        <result column="expected_confirmed_date" jdbcType="TIMESTAMP" property="expectedConfirmedDate"/>
+        <result column="investor_pay_id" jdbcType="BIGINT" property="investorPayId"/>
+        <result column="pay_method" jdbcType="TINYINT" property="payMethod"/>
+        <result column="priced_date" jdbcType="TIMESTAMP" property="pricedDate"/>
+        <result column="transaction_unit" jdbcType="DECIMAL" property="transactionUnit"/>
+        <result column="void_date" jdbcType="TIMESTAMP" property="voidDate"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="yn" jdbcType="TINYINT" property="yn"/>
+    </resultMap>
+
+    <resultMap id="ResultMap" type="com.snb.deal.bo.order.OrderRebalanceDetailBO" extends="BaseResultMap">
+    </resultMap>
+
+    <!--公共字段-->
+    <sql id="Base_Column_List">
+        id, order_rebalance_detail_id, order_rebalance_id,user_id, contract_number, fund_code,
+        fund_name, invest_amount, order_date, reason, redemption_unit, settlement_date, transaction_cfm_lag_day,
+        transaction_date, transaction_settle_lag_day, transaction_status, transaction_type,
+        transaction_rate, discount_rate, transaction_charge, bank_code, account_number, bank_number,
+        cancel_enable, canceled_date, completed_date, discount_transaction_charge, expected_confirmed_date,
+        investor_pay_id, pay_method, priced_date, transaction_unit, void_date, create_time,
+        update_time, yn
+    </sql>
+
+    <!-- 查询调仓订单详情列表-管理后台 -->
+    <select id="listByOrderRebalanceDetailCondition" resultMap="ResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM order_rebalance_detail
+        WHERE yn = 0
+        <if test="orderRebalanceId != null">
+            and order_rebalance_id = #{orderRebalanceId}
+        </if>
+        ORDER BY transaction_type ASC, create_time DESC
+    </select>
+
+    <!-- 通过查询条件查询数量 -->
+    <select id="queryRebalanceCountByCondition" resultType="long" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceConditionBO">
+        SELECT
+        count(*)
+        FROM order_rebalance_detail
+        WHERE yn = 0
+        <if test="transactionType != null">
+            and transaction_type = #{transactionType}
+        </if>
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+        <if test="orderRebalanceId != null">
+            and order_rebalance_id = #{orderRebalanceId}
+        </if>
+
+        <if test="transactionStatus != null">
+            and transaction_status = #{transactionStatus}
+        </if>
+
+    </select>
+
+
+    <!-- 存在未完成的订单 -->
+    <select id="existNoFinishOrder" resultType="long" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceConditionBO">
+        SELECT
+        count(*)
+        FROM order_rebalance_detail
+        WHERE yn = 0 and order_rebalance_id =#{orderRebalanceId} and transaction_status != #{transactionStatus}
+    </select>
+
+
+
+    <!-- 批量新增-调仓交易返回详情 -->
+    <insert id="batchAddRebalanceDetail" useGeneratedKeys="true" parameterType="java.util.List">
+        insert into order_rebalance_detail (
+        user_id,
+        order_rebalance_detail_id,
+        order_rebalance_id,
+        contract_number,
+        fund_code,
+        fund_name,
+        invest_amount,
+        order_date,
+        reason,
+        redemption_unit,
+        settlement_date,
+        transaction_cfm_lag_day,
+        transaction_date,
+        transaction_settle_lag_day,
+        transaction_status,
+        transaction_type)
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.userId},
+            #{item.orderRebalanceDetailId},
+            #{item.orderRebalanceId},
+            #{item.contractNumber},
+            #{item.fundCode},
+            #{item.fundName},
+            #{item.investAmount},
+            #{item.orderDate},
+            #{item.reason},
+            #{item.redemptionUnit},
+            #{item.settlementDate},
+            #{item.transactionCfmLagDay},
+            #{item.transactionDate},
+            #{item.transactionSettleLagDay},
+            #{item.transactionStatus},
+            #{item.transactionType})
+        </foreach>
+    </insert>
+
+
+
+    <!-- 批量新增-调仓交易返回详情 -->
+    <insert id="batchAddRebalanceDetailSync" useGeneratedKeys="true" parameterType="java.util.List">
+        insert into order_rebalance_detail (
+        user_id,
+        order_rebalance_detail_id,
+        order_rebalance_id,
+        contract_number,
+        fund_code,
+        fund_name,
+        invest_amount,
+        order_date,
+        reason,
+        redemption_unit,
+        settlement_date,
+        transaction_cfm_lag_day,
+        transaction_date,
+        transaction_settle_lag_day,
+        transaction_status,
+        transaction_type,
+        transaction_rate,
+        discount_rate,
+        transaction_charge,
+        bank_code,
+        account_number,
+        bank_number,
+        cancel_enable,
+        canceled_date,
+        completed_date,
+        discount_transaction_charge,
+        expected_confirmed_date,
+        investor_pay_id,
+        pay_method,
+        priced_date,
+        transaction_unit,
+        void_date
+        )
+        values
+        <foreach collection="list" item="item" index="index" separator=",">
+            (
+            #{item.userId},
+            #{item.orderRebalanceDetailId},
+            #{item.orderRebalanceId},
+            #{item.contractNumber},
+            #{item.fundCode},
+            #{item.fundName},
+            #{item.investAmount},
+            #{item.orderDate},
+            #{item.reason},
+            #{item.redemptionUnit},
+            #{item.settlementDate},
+            #{item.transactionCfmLagDay},
+            #{item.transactionDate},
+            #{item.transactionSettleLagDay},
+            #{item.transactionStatus},
+            #{item.transactionType},
+            #{item.transactionRate},
+            #{item.discountRate},
+            #{item.transactionCharge},
+            #{item.bankCode},
+            #{item.accountNumber},
+            #{item.bankNumber},
+            #{item.cancelEnable},
+            #{item.canceledDate},
+            #{item.completedDate},
+            #{item.discountTransactionCharge},
+            #{item.expectedConfirmedDate},
+            #{item.investorPayId},
+            #{item.payMethod},
+            #{item.pricedDate},
+            #{item.transactionUnit},
+            #{item.voidDate})
+        </foreach>
+    </insert>
+
+
+    <!-- 批量更新子订单信息 -->
+    <update id="batchUpdateRebalanceDetail" parameterType="java.util.List">
+        <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+            update order_rebalance_detail set update_time = now(),
+            transaction_status = #{item.transactionStatus},
+            transaction_rate = #{item.transactionRate},
+            discount_rate = #{item.discountRate},
+            transaction_charge = #{item.transactionCharge},
+            bank_code = #{item.bankCode},
+            bank_number = #{item.bankNumber},
+            account_number = #{item.accountNumber},
+            cancel_enable = #{item.cancelEnable},
+            completed_date = #{item.completedDate},
+            discount_transaction_charge = #{item.discountTransactionCharge},
+            expected_confirmed_date = #{item.expectedConfirmedDate},
+            investor_pay_id = #{item.investorPayId},
+            pay_method = #{item.payMethod},
+            priced_date = #{item.pricedDate},
+            transaction_unit = #{item.transactionUnit},
+            void_date= #{item.voidDate}
+            where order_rebalance_id = #{item.orderRebalanceId}
+            and fund_code=#{item.fundCode}
+            and transaction_type=#{item.transactionType}
+            and yn=0
+        </foreach>
+    </update>
+
+
+</mapper>

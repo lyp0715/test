@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.plan.PlanPortfolioAccountMapper">
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.plan.PlanPortfolioAccountDO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="plan_portfolio_account_id" jdbcType="VARCHAR" property="planPortfolioAccountId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="plan_portfolio_rel_id" jdbcType="BIGINT" property="planPortfolioRelId"/>
+        <result column="total_performance" jdbcType="DECIMAL" property="totalPerformance"/>
+        <result column="total_income" jdbcType="DECIMAL" property="totalIncome"/>
+        <result column="total_amount" jdbcType="DECIMAL" property="totalAmount"/>
+        <result column="total_invest_amount" jdbcType="DECIMAL" property="totalInvestAmount"/>
+        <result column="total_intransit_amount" jdbcType="DECIMAL" property="totalIntransitAmount"/>
+        <result column="available_amount" jdbcType="DECIMAL" property="availableAmount"/>
+        <result column="un_available_amount" jdbcType="DECIMAL" property="unAvailableAmount"/>
+        <result column="max_redeemable_amount" jdbcType="DECIMAL" property="maxRedeemableAmount"/>
+        <result column="min_redeemable_amount" jdbcType="DECIMAL" property="minRedeemableAmount"/>
+        <result column="min_retain_amount" jdbcType="DECIMAL" property="minRetainAmount"/>
+        <result column="available_unit" jdbcType="DECIMAL" property="availableUnit"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="yn" jdbcType="BIT" property="yn"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, plan_portfolio_account_id, user_id, plan_portfolio_rel_id,total_performance, total_income, total_amount,
+        total_invest_amount, total_intransit_amount, available_amount,un_available_amount,max_redeemable_amount,min_redeemable_amount,min_retain_amount,available_unit, create_time, update_time,
+        yn
+    </sql>
+
+    <insert id="insert" parameterType="com.snb.deal.entity.plan.PlanPortfolioAccountDO">
+        insert into plan_portfolio_account
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="planPortfolioAccountId != null">
+                plan_portfolio_account_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="planPortfolioRelId != null">
+                plan_portfolio_rel_id,
+            </if>
+            <if test="totalPerformance != null">
+                total_performance,
+            </if>
+            <if test="totalIncome != null">
+                total_income,
+            </if>
+            <if test="totalAmount != null">
+                total_amount,
+            </if>
+            <if test="totalInvestAmount != null">
+                total_invest_amount,
+            </if>
+            <if test="totalIntransitAmount != null">
+                total_intransit_amount,
+            </if>
+            <if test="availableAmount != null">
+                available_amount,
+            </if>
+            <if test="unAvailableAmount != null">
+                un_available_amount,
+            </if>
+
+            <if test="maxRedeemableAmount != null">
+                max_redeemable_amount,
+            </if>
+
+            <if test="minRedeemableAmount != null">
+                min_redeemable_amount,
+            </if>
+
+            <if test="minRetainAmount != null">
+                min_retain_amount,
+            </if>
+
+            <if test="availableUnit != null">
+                available_unit,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="planPortfolioAccountId != null">
+                #{planPortfolioAccountId,jdbcType=VARCHAR},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="planPortfolioRelId != null">
+                #{planPortfolioRelId,jdbcType=VARCHAR},
+            </if>
+            <if test="totalPerformance != null">
+                #{totalPerformance,jdbcType=DECIMAL},
+            </if>
+            <if test="totalIncome != null">
+                #{totalIncome,jdbcType=DECIMAL},
+            </if>
+            <if test="totalAmount != null">
+                #{totalAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="totalInvestAmount != null">
+                #{totalInvestAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="totalIntransitAmount != null">
+                #{totalIntransitAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="availableAmount != null">
+                #{availableAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="unAvailableAmount != null">
+                #{unAvailableAmount,jdbcType=DECIMAL},
+            </if>
+
+            <if test="maxRedeemableAmount != null">
+                #{maxRedeemableAmount,jdbcType=DECIMAL},
+            </if>
+
+            <if test="minRedeemableAmount != null">
+                #{minRedeemableAmount,jdbcType=DECIMAL},
+            </if>
+
+            <if test="minRetainAmount != null">
+                #{minRetainAmount,jdbcType=DECIMAL},
+            </if>
+
+            <if test="availableUnit != null">
+                #{availableUnit,jdbcType=DECIMAL},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null">
+                #{yn,jdbcType=BIT},
+            </if>
+        </trim>
+    </insert>
+
+    <update id="update" parameterType="com.snb.deal.entity.plan.PlanPortfolioAccountDO">
+        update plan_portfolio_account
+        <set>
+            <if test="totalPerformance != null">
+                total_performance = #{totalPerformance},
+            </if>
+            <if test="totalIncome != null">
+                total_income = #{totalIncome},
+            </if>
+            <if test="totalAmount != null">
+                total_amount = #{totalAmount},
+            </if>
+            <if test="totalInvestAmount != null">
+                total_invest_amount = #{totalInvestAmount},
+            </if>
+            <if test="totalIntransitAmount != null">
+                total_intransit_amount = #{totalIntransitAmount},
+            </if>
+            <if test="availableAmount != null">
+                available_amount = #{availableAmount},
+            </if>
+            <if test="unAvailableAmount != null">
+                un_available_amount = #{unAvailableAmount},
+            </if>
+
+            <if test="maxRedeemableAmount != null">
+                max_redeemable_amount = #{maxRedeemableAmount},
+            </if>
+
+            <if test="minRedeemableAmount != null">
+                min_redeemable_amount = #{minRedeemableAmount},
+            </if>
+
+            <if test="minRetainAmount != null">
+                min_retain_amount = #{minRetainAmount},
+            </if>
+
+            <if test="availableUnit != null">
+                available_unit = #{availableUnit}
+            </if>
+        </set>
+
+        where plan_portfolio_account_id = #{planPortfolioAccountId} and yn=0
+
+    </update>
+
+    <select id="selectByPlanPortfolioRelId" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from plan_portfolio_account ppa
+        where ppa.plan_portfolio_rel_id = #{planPortfolioRelId}
+        and ppa.yn = 0
+    </select>
+</mapper>

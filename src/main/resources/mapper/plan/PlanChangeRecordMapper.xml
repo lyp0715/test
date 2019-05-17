@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.plan.PlanChangeRecordMapper">
+
+  <sql id="Insert_Column_List">
+    third_plan_id, plan_change_record_id,user_id,plan_name,plan_id,channel,portfolio_amount,
+    cycle,cycle_day
+  </sql>
+
+  <insert id="insertChange" parameterType="com.snb.deal.entity.plan.PlanChangeRecordDO">
+    insert into plan_change_record
+    (
+      <include refid="Insert_Column_List"/>
+    ) VALUES
+      (
+        #{thirdPlanId,jdbcType=VARCHAR},
+        #{planchangeRecordId,jdbcType=BIGINT},
+        #{userId,jdbcType=VARCHAR},
+        #{planName,jdbcType=VARCHAR},
+        #{planInfoId,jdbcType=VARCHAR},
+        #{channel,jdbcType=TINYINT},
+        #{portfolioAmount,jdbcType=DECIMAL},
+        #{cycle,jdbcType=TINYINT},
+        #{cycleDay,jdbcType=TINYINT}
+      )
+  </insert>
+</mapper>

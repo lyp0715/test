@@ -1,0 +1,97 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.plan.PlanStatisticsMapper">
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.plan.PlanStatisticsDO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="plan_statistics_id" jdbcType="BIGINT" property="planStatisticsId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="plan_id" jdbcType="VARCHAR" property="planId"/>
+        <result column="total_invest_amount" jdbcType="DECIMAL" property="totalInvestAmount"/>
+        <result column="total_success_num" jdbcType="BIGINT" property="totalSuccessNum"/>
+        <result column="total_failed_num" jdbcType="BIGINT" property="totalFailedNum"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="yn" jdbcType="TINYINT" property="yn"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, plan_statistics_id, user_id, plan_id, total_invest_amount, total_success_num,
+        total_failed_num, create_time, update_time, yn
+    </sql>
+
+    <insert id="insert" parameterType="com.snb.deal.entity.plan.PlanStatisticsDO">
+        insert into plan_statistics
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                id,
+            </if>
+            <if test="planStatisticsId != null">
+                plan_statistics_id,
+            </if>
+            <if test="userId != null">
+                user_id,
+            </if>
+            <if test="planId != null">
+                plan_id,
+            </if>
+            <if test="totalInvestAmount != null">
+                total_invest_amount,
+            </if>
+            <if test="totalSuccessNum != null">
+                total_success_num,
+            </if>
+            <if test="totalFailedNum != null">
+                total_failed_num,
+            </if>
+            <if test="createTime != null">
+                create_time,
+            </if>
+            <if test="updateTime != null">
+                update_time,
+            </if>
+            <if test="yn != null">
+                yn,
+            </if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">
+                #{id,jdbcType=BIGINT},
+            </if>
+            <if test="planStatisticsId != null">
+                #{planStatisticsId,jdbcType=BIGINT},
+            </if>
+            <if test="userId != null">
+                #{userId,jdbcType=VARCHAR},
+            </if>
+            <if test="planId != null">
+                #{planId,jdbcType=VARCHAR},
+            </if>
+            <if test="totalInvestAmount != null">
+                #{totalInvestAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="totalSuccessNum != null">
+                #{totalSuccessNum,jdbcType=BIGINT},
+            </if>
+            <if test="totalFailedNum != null">
+                #{totalFailedNum,jdbcType=BIGINT},
+            </if>
+            <if test="createTime != null">
+                #{createTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="updateTime != null">
+                #{updateTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="yn != null">
+                #{yn,jdbcType=TINYINT},
+            </if>
+        </trim>
+    </insert>
+
+
+    <select id="selectByPlanInfoId" resultMap="BaseResultMap">
+        select <include refid="Base_Column_List"/>
+        from plan_statistics ps
+        where ps.plan_id = #{planInfoId} and ps.user_id = #{userId}
+        and ps.yn = 0;
+    </select>
+</mapper>

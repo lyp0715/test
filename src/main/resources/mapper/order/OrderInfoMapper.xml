@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.snb.deal.mapper.order.OrderInfoMapper">
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderInfoDO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="user_id" property="userId" jdbcType="VARCHAR"/>
+        <result column="order_no" property="orderNo" jdbcType="BIGINT"/>
+        <result column="order_status" property="orderStatus" jdbcType="TINYINT"/>
+        <result column="business_code" property="businessCode" jdbcType="TINYINT"/>
+        <result column="source" property="source" jdbcType="VARCHAR"/>
+        <result column="transaction_finish_time" property="transactionFinishTime" jdbcType="TIMESTAMP"/>
+        <result column="transaction_amount" property="transactionAmount" jdbcType="DECIMAL"/>
+        <result column="send_time" property="sendTime" jdbcType="TIMESTAMP"/>
+        <result column="channel" property="channel" jdbcType="TINYINT"/>
+        <result column="create_time" property="createTime" jdbcType="TIMESTAMP"/>
+        <result column="update_time" property="updateTime" jdbcType="TIMESTAMP"/>
+        <result column="yn" property="yn" jdbcType="TINYINT"/>
+    </resultMap>
+    <sql id="Base_Column_List">
+    id, user_id, order_no, order_status, business_code, source, transaction_finish_time, 
+    transaction_amount, send_time, channel, create_time, update_time, yn
+  </sql>
+
+
+    <insert id="insert" parameterType="com.snb.deal.entity.order.OrderInfoDO">
+        <selectKey resultType="java.lang.Long" keyProperty="id" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+        insert into order_info (id, user_id, order_no,
+        order_status, business_code, source,
+        transaction_finish_time, transaction_amount,
+        send_time, channel)
+        values (#{id,jdbcType=BIGINT}, #{userId,jdbcType=VARCHAR}, #{orderNo,jdbcType=BIGINT},
+        #{orderStatus,jdbcType=TINYINT}, #{businessCode,jdbcType=TINYINT}, #{source,jdbcType=VARCHAR},
+        #{transactionFinishTime,jdbcType=TIMESTAMP}, #{transactionAmount,jdbcType=DECIMAL},
+        #{sendTime,jdbcType=TIMESTAMP}, #{channel,jdbcType=TINYINT})
+    </insert>
+
+    <select id="query" resultMap="BaseResultMap" parameterType="com.snb.deal.entity.order.OrderInfoDO">
+        select
+        <include refid="Base_Column_List"/>
+        from order_info
+        <where>
+            yn=0
+            <if test="userId!=null">
+                AND user_id=#{userId,jdbcType=VARCHAR}
+            </if>
+            <if test="orderNo!=null">
+                AND order_no=#{orderNo,jdbcType=BIGINT}
+            </if>
+            <if test="orderStatus!=null">
+                AND order_status=#{orderStatus,jdbcType=TINYINT}
+            </if>
+            <if test="businessCode!=null">
+                AND business_code=#{businessCode,jdbcType=TINYINT}
+            </if>
+            <if test="source!=null">
+                AND source=#{source,jdbcType=VARCHAR}
+            </if>
+            <if test="channel!=null">
+                AND channel=#{channel,jdbcType=TINYINT}
+            </if>
+        </where>
+        order by send_time desc
+    </select>
+
+    <select id="queryInvest" resultMap="BaseResultMap" parameterType="com.snb.deal.entity.order.OrderInfoDO">
+        select
+        <include refid="Base_Column_List"/>
+        from order_info
+        <where>
+            business_code in (1,2) AND yn=0
+            <if test="userId!=null">
+                AND user_id=#{userId,jdbcType=VARCHAR}
+            </if>
+            <if test="orderNo!=null">
+                AND order_no=#{orderNo,jdbcType=BIGINT}
+            </if>
+            <if test="orderStatus!=null">
+                AND order_status=#{orderStatus,jdbcType=TINYINT}
+            </if>
+            <if test="source!=null">
+                AND source=#{source,jdbcType=VARCHAR}
+            </if>
+            <if test="channel!=null">
+                AND channel=#{channel,jdbcType=TINYINT}
+            </if>
+        </where>
+        order by send_time desc
+    </select>
+
+    <update id="update" parameterType="com.snb.deal.entity.order.OrderInfoDO" >
+        update order_info
+        <set >
+            <if test="orderStatus != null" >
+                order_status = #{orderStatus,jdbcType=TINYINT},
+            </if>
+            <if test="transactionFinishTime != null" >
+                transaction_finish_time = #{transactionFinishTime,jdbcType=TIMESTAMP},
+            </if>
+            <if test="transactionAmount != null" >
+                transaction_amount = #{transactionAmount,jdbcType=DECIMAL},
+            </if>
+            <if test="sendTime != null" >
+                send_time = #{sendTime,jdbcType=TIMESTAMP},
+            </if>
+        </set>
+        where order_no = #{orderNo,jdbcType=BIGINT} and yn=0
+    </update>
+
+    <update id="updateOrderStatus">
+        update order_info set order_status=#{orderStatus} where order_no=#{orderNo} and yn=0
+    </update>
+
+    <select id="queryByOrderNo" resultMap="BaseResultMap">
+      select
+      <include refid="Base_Column_List"/>
+        from order_info where order_no=#{orderNo} and yn=0
+    </select>
+
+    <!-- 查询用户是调仓订单已发送但未完成的订单 -->
+    <select id="queryUnSendOrderRebalance" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceConditionBO" resultType="Long" >
+        SELECT
+        count(1) as countNum
+        FROM order_info
+        WHERE yn = 0
+        and order_status = #{transactionStatus}
+        and user_id = #{userId}
+        and channel = #{channel}
+        and business_code = 4
+        and send_time is not null
+    </select>
+
+    <select id="queryLastRebalanceByCondition"  resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM order_info
+        WHERE yn = 0
+        and order_status = #{transactionStatus}
+        and user_id = #{userId}
+        and channel = #{channel}
+        and business_code = 4
+        order by transaction_finish_time desc limit 1
+    </select>
+</mapper>

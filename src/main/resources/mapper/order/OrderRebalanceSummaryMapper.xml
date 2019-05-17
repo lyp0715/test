@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.order.OrderRebalanceSummaryMapper">
+
+  <!-- 基础结果集合-->
+  <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderRebalanceSummaryDO">
+    <result column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_rebalance_summary_id" jdbcType="BIGINT" property="orderRebalanceSummaryId" />
+    <result column="order_rebalance_id" jdbcType="BIGINT" property="orderRebalanceId" />
+    <result column="able_reason" jdbcType="VARCHAR" property="ableReason" />
+    <result column="disable_reson" jdbcType="VARCHAR" property="disableReson" />
+    <result column="total_fee" jdbcType="DECIMAL" property="totalFee" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="TINYINT" property="yn" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+    <result column="channel" jdbcType="VARCHAR" property="channel"/>
+  </resultMap>
+
+  <!--公共字段 -->
+  <sql id="Base_Column_List">
+    id, order_rebalance_summary_id, order_rebalance_id, able_reason, disable_reson, total_fee,
+    create_time, update_time, yn,user_id,channel
+  </sql>
+
+
+  <!--新增-->
+  <insert id="insert" parameterType="com.snb.deal.entity.order.OrderRebalanceSummaryDO">
+    insert into order_rebalance_summary (order_rebalance_summary_id, order_rebalance_id,
+    able_reason, disable_reson, total_fee,user_id,channel)
+    values (#{orderRebalanceSummaryId,jdbcType=BIGINT}, #{orderRebalanceId,jdbcType=BIGINT},
+    #{ableReason,jdbcType=VARCHAR}, #{disableReson,jdbcType=VARCHAR}, #{totalFee,jdbcType=DECIMAL},
+    #{userId,jdbcType=VARCHAR},#{channel,jdbcType=TINYINT})
+  </insert>
+
+
+  <!--通过条件查询基金调仓概要信息(调仓前预期)-明细-->
+  <select id="queryByCondition" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceSummaryConditionBO" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from order_rebalance_summary where yn =0
+
+    <if test="orderRebalaceId != null">
+      and order_rebalance_id = #{orderRebalaceId}
+    </if>
+  </select>
+
+  <select id="getLastRebalanceSummaryByCondition" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceSummaryConditionBO" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List"/>
+    from order_rebalance_summary where yn =0
+    <if test="userId != null">
+      and user_id = #{userId}
+    </if>
+    <if test="channel != null">
+      and channel = #{channel}
+    </if>
+      order by create_time desc limit 1
+  </select>
+</mapper>

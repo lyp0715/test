@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.order.OrderDividendMapper">
+  <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderDividendDO">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="order_dividend_id" jdbcType="BIGINT" property="orderDividendId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="contract_number" jdbcType="VARCHAR" property="contractNumber" />
+    <result column="fund_name" jdbcType="VARCHAR" property="fundName" />
+    <result column="fund_code" jdbcType="VARCHAR" property="fundCode" />
+    <result column="merchant_number" jdbcType="VARCHAR" property="merchantNumber" />
+    <result column="account_number" jdbcType="VARCHAR" property="accountNumber" />
+    <result column="order_no" jdbcType="VARCHAR" property="orderNo" />
+    <result column="order_date" jdbcType="TIMESTAMP" property="orderDate" />
+    <result column="priced_date" jdbcType="TIMESTAMP" property="pricedDate" />
+    <result column="transaction_status" jdbcType="TINYINT" property="transactionStatus" />
+    <result column="transaction_date" jdbcType="TIMESTAMP" property="transactionDate" />
+    <result column="transaction_unit" jdbcType="DECIMAL" property="transactionUnit" />
+    <result column="third_portfolio_id" jdbcType="VARCHAR" property="thirdPortfolioId" />
+    <result column="channel" jdbcType="TINYINT" property="channel" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="TINYINT" property="yn" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, order_dividend_id, user_id, contract_number, fund_name, fund_code, merchant_number,
+    account_number, order_no, order_date, priced_date, transaction_status, transaction_date,
+    transaction_unit, third_portfolio_id, channel, create_time, update_time, yn
+  </sql>
+
+  <sql id="insertColumn">
+    order_dividend_id, user_id, contract_number, fund_name, fund_code, merchant_number,
+    account_number, order_no, order_date, priced_date, transaction_status, transaction_date,
+    transaction_unit, third_portfolio_id, channel
+  </sql>
+
+  <insert id="insert" parameterType="com.snb.deal.entity.order.OrderDividendDO">
+
+    insert into order_dividend (
+      <include refid="insertColumn"/>
+    )
+    VALUES (
+      #{orderDividendId,jdbcType=BIGINT},
+      #{userId,jdbcType=VARCHAR},
+      #{contractNumber,jdbcType=VARCHAR},
+      #{fundName,jdbcType=VARCHAR},
+      #{fundCode,jdbcType=VARCHAR},
+      #{merchantNumber,jdbcType=VARCHAR},
+      #{accountNumber,jdbcType=VARCHAR},
+      #{orderNo,jdbcType=VARCHAR},
+      #{orderDate,jdbcType=TIMESTAMP},
+      #{pricedDate,jdbcType=TIMESTAMP},
+      #{transactionStatus,jdbcType=TINYINT},
+      #{transactionDate,jdbcType=TIMESTAMP},
+      #{transactionUnit,jdbcType=DECIMAL},
+      #{thirdPortfolioId,jdbcType=VARCHAR},
+      #{channel,jdbcType=TINYINT}
+    )
+
+  </insert>
+
+  <select id="queryByOrderNo" resultMap="BaseResultMap" parameterType="com.snb.deal.entity.order.OrderDividendDO" >
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM order_dividend
+    where order_no=#{orderNo,jdbcType=BIGINT} and yn=0
+  </select>
+
+  <select id="queryByMerchantNumber" resultMap="BaseResultMap" parameterType="com.snb.deal.entity.order.OrderDividendDO" >
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM order_dividend
+    where merchant_number=#{merchantNumber,jdbcType=VARCHAR} and channel=#{channel,jdbcType=TINYINT} and yn=0
+  </select>
+</mapper>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.plan.UserPlanInfoMapper">
+
+
+    <resultMap id="UserPlanInfoResult" type="com.snb.deal.admin.api.dto.plan.UserPlanInfo">
+        <id column="id"  property="id" />
+        <result column="plan_info_id"  property="planInfoId" />
+        <result column="phone"  property="phone" />
+        <result column="name"  property="name" />
+        <result column="cycle"  property="cycle" />
+        <result column="cycle_day"  property="cycleDay" />
+        <result column="third_plan_id"  property="portfolioCode" />
+        <result column="plan_name"  property="planName" />
+        <result column="portfolio_amount"  property="portfolioAmount" />
+        <result column="portfolio_year"  property="portfolioYear" />
+        <result column="plan_status"  property="planStatus" />
+    </resultMap>
+
+
+    <!--通过条件查询用户定投信息 -->
+    <select id="queryUserPlanInfoDtoByCondition" resultMap="UserPlanInfoResult" >
+       SELECT 	plan.`id`,plan.`plan_info_id`,usr.`name`,usr.`phone`,plan.`plan_name`,plan.`third_plan_id`,plan.`cycle`,plan.`cycle_day`,plan.`portfolio_amount`,plan.`portfolio_year`,plan.`plan_status`,plan.`yn`
+        FROM plan_info plan,user_info usr
+        WHERE plan.`user_id` = usr.`user_id`
+        AND  plan.`yn`=0
+
+        <if test="name != null and name != ''">
+            AND usr.`name`= #{name}
+        </if>
+        <if test="phone != null and phone != ''">
+            AND usr.`phone`= #{phone}
+        </if>
+    </select>
+</mapper>

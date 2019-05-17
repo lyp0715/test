@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:rabbit="http://www.springframework.org/schema/rabbit"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:aop="http://www.springframework.org/schema/aop"
+
+       xsi:schemaLocation="http://www.springframework.org/schema/beans  http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/rabbit http://www.springframework.org/schema/rabbit/spring-rabbit-2.0.xsd
+       http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd
+       http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <!-- RabbitMQ 连接工场 -->
+    <bean id="connectionFactory"
+          class="org.springframework.amqp.rabbit.connection.CachingConnectionFactory">
+        <constructor-arg value="${rabbitmq.host}"/>
+        <property name="username" value="${rabbitmq.username}"/>
+        <property name="password" value="${rabbitmq.password}"/>
+        <property name="virtualHost" value="${rabbitmq.virtualHost}"/>
+    </bean>
+
+    <!-- 原始rabbitTemplate重命名为 -->
+    <rabbit:template id="oldRabbitTemplate" connection-factory="connectionFactory" />
+    <bean id="amqpTemplate" class="com.jianlc.tc.jlcrabbit.JlcRabbitTemplate">
+        <!-- 包装原rabbitTemplate -->
+        <constructor-arg name="rabbitTemplate" ref="oldRabbitTemplate"/>
+    </bean>
+
+    <rabbit:admin connection-factory="connectionFactory"/>
+
+    <!-- @Event注解的aop配置 -->
+    <aop:config>
+        <aop:pointcut id="mqMethodPointcut"
+                      expression="@annotation(com.jianlc.event.Event)" />
+        <aop:advisor pointcut-ref="mqMethodPointcut" advice-ref="methodEventInterceptor" />
+    </aop:config>
+
+    <!--MQ重试配置-->
+
+    <!--发送重试消息类型-->
+    <util:list id="sendDataTypes" value-type="java.lang.String">
+        <!--计划创建完成-->
+        <value>planCreateComplete</value>
+        <!--定投完成-->
+        <value>autoInvestComplete</value>
+        <!--定投回调-->
+        <value>ifastAutoInvestCallback</value>
+        <!--订单回调-->
+        <value>ifastOrderCallback</value>
+        <!--定投回调补偿-->
+        <value>autoInvestCallbackCompensate</value>
+    </util:list>
+
+    <!--接收端重试 key：enentType value:消费端对应的consumber bean-->
+    <util:map id="receiveDataTypes" key-type="java.lang.String" value-type="java.util.ArrayList">
+        <!--自动定投回调-->
+        <entry key="ifastAutoInvestCallback" value-ref="autoInvestCallbackReceiveRetry"/>
+        <!--计划创建完成-->
+        <entry key="planCreateComplete" value-ref="planCreateCompleteReceiveRetry"/>
+        <!--订单回调-->
+        <entry key="ifastOrderCallback" value-ref="ifastOrderCallbackReceiveRetry"/>
+        <!--定投回调补偿-->
+        <entry key="autoInvestCallbackCompensate" value-ref="autoInvestCallbackReceiveRetry"/>
+        <!--风险测评完成-->
+        <entry key="riskSuccess" value-ref="riskSuccessReceiveRetry"/>
+        <!--同步账户-->
+        <entry key="syncAccount" value-ref="syncAccountRetry"/>
+    </util:map>
+
+    <!--定投回调-->
+    <util:list id="autoInvestCallbackReceiveRetry" value-type="com.jianlc.event.EventMessageRetryHandler">
+        <!--保存定投订单-->
+        <ref bean="autoInvestConsumer"/>
+        <!--更新计划信息-->
+        <ref bean="planInfoSyncConsumer"/>
+    </util:list>
+
+    <!--计划创建完成-->
+    <util:list id="planCreateCompleteReceiveRetry" value-type="com.jianlc.event.EventMessageRetryHandler">
+        <!--初始化保险信息-->
+        <ref bean="initInsuranceConsumer"/>
+        <!--初始化统计信息-->
+        <ref bean="initPlanStatisticsConsumer"/>
+    </util:list>
+
+    <!--订单回调-->
+    <util:list id="ifastOrderCallbackReceiveRetry" value-type="com.jianlc.event.EventMessageRetryHandler">
+        <!--投资订单-->
+        <ref bean="investOrderCallbackConsumer"/>
+        <!--赎回订单-->
+        <ref bean="redeemOrderCallbackConsumer"/>
+        <!--调仓订单-->
+        <ref bean="rebalanceOrderCallbackConsumer"/>
+        <!--同步账户-->
+        <ref bean="afterOrderCallbackConsumer"/>
+    </util:list>
+
+
+    <!--风险测评完成-->
+    <util:list id="riskSuccessReceiveRetry" value-type="com.jianlc.event.EventMessageRetryHandler">
+        <!--创建定投计划-->
+        <ref bean="initPlanInfoConsumer"/>
+    </util:list>
+
+    <!--同步账户-->
+    <util:list id="syncAccountRetry" value-type="com.jianlc.event.EventMessageRetryHandler">
+        <!--同步组合账户-->
+        <ref bean="syncPortfolioAccountConsumer"/>
+    </util:list>
+
+    <!--MQ重试配置END-->
+
+    <!--MQ配置-->
+
+
+    <!--计划创建完成-->
+    <!--初始化计划统计信息-->
+    <bean id="initPlanStatisticsConsumer" class="com.snb.deal.mq.InitPlanStatisticsConsumer"/>
+    <rabbit:queue name="queue.plan.created.initPlanStatistics" />
+    <rabbit:listener-container
+    connection-factory="connectionFactory">
+    <rabbit:listener queues="queue.plan.created.initPlanStatistics"
+    ref="initPlanStatisticsConsumer" method="handle"/>
+    </rabbit:listener-container>
+    <!--初始化保险信息-->
+    <bean id="initInsuranceConsumer" class="com.snb.deal.mq.InitInsuranceConsumer"/>
+    <rabbit:queue name="queue.plan.created.initInsurance" />
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.plan.created.initInsurance"
+                         ref="initInsuranceConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <rabbit:fanout-exchange name="exchange.plan.created" id="exchange.plan.created" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--初始化计划统计信息-->
+            <rabbit:binding queue="queue.plan.created.initPlanStatistics"/>
+            <!--初始化保险信息-->
+            <rabbit:binding queue="queue.plan.created.initInsurance"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--计划创建完成end-->
+
+    <!--定投回调-->
+    <!--保存订单-->
+    <bean id="autoInvestConsumer" class="com.snb.deal.mq.AutoInvestConsumer"/>
+    <rabbit:queue name="queue.autoInvest.callback.invest" />
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.autoInvest.callback.invest"
+                         ref="autoInvestConsumer" method="handle"/>
+    </rabbit:listener-container>
+    <!--同步计划下次执行日期-->
+    <bean id="planInfoSyncConsumer" class="com.snb.deal.mq.PlanInfoSyncConsumer"/>
+    <rabbit:queue name="queue.autoInvest.callback.syncplan" />
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.autoInvest.callback.syncplan"
+                         ref="planInfoSyncConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <rabbit:fanout-exchange name="exchange.autoInvest.callBack" id="exchange.autoInvest.callBack" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--保存定投订单-->
+            <rabbit:binding queue="queue.autoInvest.callback.invest"/>
+            <!--同步计划-->
+            <rabbit:binding queue="queue.autoInvest.callback.syncplan"/>
+
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--定投回调 end-->
+
+    <!--定投订单回调补偿-->
+
+    <rabbit:fanout-exchange name="exchange.autoInvest.callBack.compensate" id="exchange.autoInvest.callBack.compensate" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--保存定投订单-->
+            <rabbit:binding queue="queue.autoInvest.callback.invest"/>
+            <!--同步计划-->
+            <rabbit:binding queue="queue.autoInvest.callback.syncplan"/>
+
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+
+    <!--定投回调完成-->
+    <!-- 重新鉴权 -->
+    <rabbit:queue name="queue.autoInvest.complete.reAuthentication"/>
+    <bean id="reAuthenticationConsumer" class="com.snb.deal.mq.ReAuthenticationConsumer"/>
+    <rabbit:listener-container connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.autoInvest.complete.reAuthentication" ref="reAuthenticationConsumer" method="handleData"/>
+    </rabbit:listener-container>
+
+    <!--同步账户-->
+    <rabbit:queue name="queue.autoInvest.complete.syncAccount" />
+    <bean id="afterAutoInvestComsumer" class="com.snb.deal.mq.syncaccount.AfterAutoInvestComsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.autoInvest.complete.syncAccount"
+                         ref="afterAutoInvestComsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <rabbit:fanout-exchange name="exchange.autoInvest.complete" id="exchange.autoInvest.complete" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--同步账户-->
+            <rabbit:binding queue="queue.autoInvest.complete.syncAccount"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--定投回调完成 end-->
+
+    <!--订单回调-->
+    <!--投资订单-->
+    <rabbit:queue name="queue.order.callback.invest" />
+    <bean id="investOrderCallbackConsumer" class="com.snb.deal.mq.InvestOrderCallbackConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.order.callback.invest"
+                         ref="investOrderCallbackConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <!--赎回订单-->
+    <rabbit:queue name="queue.order.callback.redeem" />
+    <bean id="redeemOrderCallbackConsumer" class="com.snb.deal.mq.RedeemOrderCallbackConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.order.callback.redeem"
+                         ref="redeemOrderCallbackConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <!--调仓订单-->
+    <rabbit:queue name="queue.order.callback.rebalance" />
+    <bean id="rebalanceOrderCallbackConsumer" class="com.snb.deal.mq.RebalanceOrderCallbackConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.order.callback.rebalance"
+                         ref="rebalanceOrderCallbackConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <!--同步账户-->
+    <rabbit:queue name="queue.order.callback.syncAccount" />
+    <bean id="afterOrderCallbackConsumer" class="com.snb.deal.mq.syncaccount.AfterOrderCallbackConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.order.callback.syncAccount"
+                         ref="afterOrderCallbackConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+
+    <rabbit:fanout-exchange name="exchange.order.callBack" id="exchange.order.callBack" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--投资订单-->
+            <rabbit:binding queue="queue.order.callback.invest"/>
+            <!--赎回订单-->
+            <rabbit:binding queue="queue.order.callback.redeem"/>
+            <!--调仓订单-->
+            <rabbit:binding queue="queue.order.callback.rebalance"/>
+            <!--同步账户-->
+            <rabbit:binding queue="queue.order.callback.syncAccount"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--订单回调 end-->
+
+    <!--定投计划执行前一天提醒-->
+    <!--短信通知-->
+    <rabbit:queue name="queue.plan.nextrunremind.sms" />
+    <bean id="planNextRunSmsConsumer" class="com.snb.deal.mq.PlanNextRunSmsConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.plan.nextrunremind.sms"
+                         ref="planNextRunSmsConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <rabbit:fanout-exchange name="exchange.plan.nextrunremind" id="exchange.plan.nextrunremind" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--短信通知-->
+            <rabbit:binding queue="queue.plan.nextrunremind.sms"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--定投计划执行前一天提醒 end-->
+
+    <!--订单同步完成-->
+    <!--发送扣款完成短信-->
+    <rabbit:queue name="queue.investOrder.syncComplete.sms" />
+    <!--同步账户-->
+    <rabbit:queue name="queue.investOrder.syncComplete.syncAccount" />
+
+    <bean id="autoInvestSmsConsumer" class="com.snb.deal.mq.AutoInvestSmsConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.investOrder.syncComplete.sms"
+                         ref="autoInvestSmsConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <bean id="afterInvestOrderSyncConsumer" class="com.snb.deal.mq.syncaccount.AfterInvestOrderSyncConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.investOrder.syncComplete.syncAccount"
+                         ref="afterInvestOrderSyncConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <rabbit:fanout-exchange name="exchange.investOrder.syncComplete" id="exchange.investOrder.syncComplete" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--短信通知-->
+            <rabbit:binding queue="queue.investOrder.syncComplete.sms"/>
+            <!--同步账户
+            <rabbit:binding queue="queue.investOrder.syncComplete.syncAccount"/>
+            -->
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--定投计划执行前一天提醒 end-->
+
+    <!--定投计划执行记录同步完成-->
+    <!--定投回调补偿-->
+    <rabbit:queue name="queue.plan.executeRecord.compensateAutoInvest" />
+    <bean id="compensateAutoInvestConsumer" class="com.snb.deal.mq.CompensateAutoInvestConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.plan.executeRecord.compensateAutoInvest"
+                         ref="compensateAutoInvestConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <rabbit:fanout-exchange name="exchange.plan.executeRecord.syncComplete" id="exchange.plan.executeRecord.syncComplete" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--定投回调补偿-->
+            <rabbit:binding queue="queue.plan.executeRecord.compensateAutoInvest"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--定投计划执行记录同步完成 end-->
+
+    <!--同步用户账户-->
+    <!--同步组合账户-->
+    <rabbit:queue name="queue.account.syncPortfolioAccount" />
+    <!--同步总账户和用户基金列表-->
+    <rabbit:queue name="queue.account.syncUesrFundAccount" />
+    <bean id="syncPortfolioAccountConsumer" class="com.snb.deal.mq.SyncPortfolioAccountConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.account.syncPortfolioAccount"
+                         ref="syncPortfolioAccountConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <rabbit:fanout-exchange name="exchange.account.sync" id="exchange.account.sync" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--同步组合账户-->
+            <rabbit:binding queue="queue.account.syncPortfolioAccount"/>
+            <!--同步基金账户-->
+            <rabbit:binding queue="queue.account.syncUesrFundAccount"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--同步用户账户 end-->
+
+    <!--单笔买入发起完成-->
+    <!--同步账户-->
+    <rabbit:queue name="queue.invest.apply.syncAccount" />
+    <bean id="afterInvestApplyConsumer" class="com.snb.deal.mq.syncaccount.AfterInvestApplyConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.invest.apply.syncAccount"
+                         ref="afterInvestApplyConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <rabbit:fanout-exchange name="exchange.invest.apply" id="exchange.invest.apply" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--同步账户-->
+            <rabbit:binding queue="queue.invest.apply.syncAccount"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--单笔买入发起完成 end-->
+
+    <!--调仓发起成功 -->
+    <!--同步账户-->
+    <rabbit:queue name="queue.rebalance.apply.syncAccount" />
+    <bean id="afterRebalanceApplyConsumer" class="com.snb.deal.mq.syncaccount.AfterRebalanceApplyConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.rebalance.apply.syncAccount"
+                         ref="afterRebalanceApplyConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <rabbit:fanout-exchange name="exchange.rebalance.apply" id="exchange.rebalance.apply" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--同步账户-->
+            <rabbit:binding queue="queue.rebalance.apply.syncAccount"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--调仓发起成功 end-->
+
+    <!--赎回发起成功 -->
+    <!--同步账户-->
+    <rabbit:queue name="queue.redeem.apply.syncAccount" />
+    <bean id="afterRedeemApplyConsumer" class="com.snb.deal.mq.syncaccount.AfterRedeemApplyConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.redeem.apply.syncAccount"
+                         ref="afterRedeemApplyConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+    <rabbit:fanout-exchange name="exchange.redeem.apply" id="exchange.redeem.apply" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!--同步账户-->
+            <rabbit:binding queue="queue.redeem.apply.syncAccount"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--赎回发起成功 end-->
+
+    <!--更新计划支付代码-->
+    <rabbit:queue name="queue.update.investPayId" />
+    <bean id="modifyInvestorPayIdConsumer" class="com.snb.deal.mq.ModifyInvestorPayIdConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.update.investPayId"
+                         ref="modifyInvestorPayIdConsumer" method="handle"/>
+    </rabbit:listener-container>
+
+
+    <!---->
+    <rabbit:fanout-exchange name="exchange.bankcard.reauth" id="exchange.bankcard.reauth" durable="true" auto-delete="false">
+        <rabbit:bindings>
+            <!-- 重新鉴权-->
+            <rabbit:binding queue="queue.autoInvest.complete.reAuthentication"/>
+        </rabbit:bindings>
+    </rabbit:fanout-exchange>
+
+    <!--开户完成创建定投计划-->
+    <rabbit:queue name="queue.fundAccount.openSuccess.createPlan" />
+    <bean id="initPlanInfoConsumer" class="com.snb.deal.mq.InitPlanInfoConsumer"/>
+    <rabbit:listener-container
+            connection-factory="connectionFactory">
+        <rabbit:listener queues="queue.fundAccount.openSuccess.createPlan"
+                         ref="initPlanInfoConsumer" method="handle"/>
+    </rabbit:listener-container>
+</beans>

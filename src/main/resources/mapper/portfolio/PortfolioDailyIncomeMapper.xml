@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.portfolio.PortfolioDailyIncomeMapper">
+  <resultMap id="BaseResultMap" type="com.snb.deal.entity.portfolio.PortfolioDailyIncomeDO">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="user_portfolio_daily_income_id" jdbcType="BIGINT" property="userPortfolioDailyIncomeId" />
+    <result column="user_id" jdbcType="VARCHAR" property="userId" />
+    <result column="plan_portfolio_rel_id" jdbcType="BIGINT" property="planPortfolioRelId" />
+    <result column="accumulated_performance" jdbcType="DECIMAL" property="accumulatedPerformance" />
+    <result column="accumulated_profitloss" jdbcType="DECIMAL" property="accumulatedProfitloss" />
+    <result column="performance_daily" jdbcType="DECIMAL" property="performanceDaily" />
+    <result column="profitloss_daily" jdbcType="DECIMAL" property="profitlossDaily" />
+    <result column="showed_date" jdbcType="TIMESTAMP" property="showedDate" />
+    <result column="updated_date" jdbcType="TIMESTAMP" property="updatedDate" />
+    <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="update_time" jdbcType="TIMESTAMP" property="updateTime" />
+    <result column="yn" jdbcType="BIT" property="yn" />
+  </resultMap>
+
+  <sql id="Base_Column_List">
+    id, user_portfolio_daily_income_id, user_id, plan_portfolio_rel_id, accumulated_performance, 
+    accumulated_profitloss, performance_daily, profitloss_daily, showed_date, updated_date, 
+    create_time, update_time, yn
+  </sql>
+
+  <sql id="Insert_Column_List">
+    user_portfolio_daily_income_id, user_id, plan_portfolio_rel_id, accumulated_performance,
+    accumulated_profitloss, performance_daily, profitloss_daily, showed_date, updated_date
+  </sql>
+
+  <select id="selectUserIncomeByShowedDate" resultMap="BaseResultMap">
+
+    SELECT
+    <include refid="Base_Column_List"/>
+
+    from portfolio_daily_income pdi
+
+    where pdi.user_id=#{userId} and pdi.plan_portfolio_rel_id=#{planPortfolioRelId} and pdi.showed_date=#{showedDate} and pdi.yn=0
+
+  </select>
+
+
+  <insert id="inesrtBatch" parameterType="java.util.List" useGeneratedKeys="true">
+    insert into portfolio_daily_income (
+    <include refid="Insert_Column_List"/>
+    ) VALUES
+    <foreach collection="list" item="item" index="index"
+             separator=",">
+      (
+      #{item.userPortfolioDailyIncomeId,jdbcType=BIGINT},
+      #{item.userId,jdbcType=VARCHAR},
+      #{item.planPortfolioRelId,jdbcType=BIGINT},
+      #{item.accumulatedPerformance,jdbcType=DECIMAL},
+      #{item.accumulatedProfitloss,jdbcType=DECIMAL},
+      #{item.performanceDaily,jdbcType=DECIMAL},
+      #{item.profitlossDaily,jdbcType=DECIMAL},
+      #{item.showedDate,jdbcType=TIMESTAMP},
+      #{item.updatedDate,jdbcType=TIMESTAMP}
+      )
+    </foreach>
+
+  </insert>
+
+  <update id="updateBatch" parameterType="java.util.List">
+    <foreach collection="list" item="item" index="index" open="" close="" separator=";">
+      update portfolio_daily_income
+      set
+      accumulated_performance = #{item.accumulatedPerformance},
+      accumulated_profitloss = #{item.accumulatedProfitloss},
+      performance_daily = #{item.performanceDaily},
+      profitloss_daily = #{item.profitlossDaily},
+      showed_date = #{item.showedDate},
+      updated_date = #{item.updatedDate}
+      where user_portfolio_daily_income_id = #{item.userPortfolioDailyIncomeId}
+      and yn=0
+    </foreach>
+  </update>
+
+  <select id="selectByUpdateDateAndShowedDate" resultMap="BaseResultMap">
+    select <include refid="Base_Column_List"/>
+    from portfolio_daily_income pdi
+    WHERE pdi.yn = 0 AND pdi.user_id = #{userId} AND pdi.plan_portfolio_rel_id = #{planPortfolioRelId}
+    ORDER BY pdi.showed_date DESC ,pdi.updated_date DESC
+    LIMIT 1
+  </select>
+
+</mapper>

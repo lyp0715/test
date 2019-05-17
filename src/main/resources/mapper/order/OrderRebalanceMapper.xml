@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.snb.deal.mapper.order.OrderRebalanceMapper">
+
+    <!-- 基础结果集合-->
+    <resultMap id="BaseResultMap" type="com.snb.deal.entity.order.OrderRebalanceDO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="order_rebalance_id" jdbcType="BIGINT" property="orderRebalanceId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="order_no" jdbcType="BIGINT" property="orderNo"/>
+        <result column="account_number" jdbcType="VARCHAR" property="accountNumber"/>
+        <result column="transaction_status" jdbcType="TINYINT" property="transactionStatus"/>
+        <result column="transaction_charge" jdbcType="DECIMAL" property="transactionCharge"/>
+        <result column="merchant_number" jdbcType="VARCHAR" property="merchantNumber"/>
+        <result column="portfolio_code" jdbcType="VARCHAR" property="portfolioCode"/>
+        <result column="third_portfolio_id" jdbcType="VARCHAR" property="thirdPortfolioId"/>
+        <result column="response_code" jdbcType="VARCHAR" property="responseCode"/>
+        <result column="response_message" jdbcType="VARCHAR" property="responseMessage"/>
+        <result column="channel" jdbcType="TINYINT" property="channel"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="yn" jdbcType="TINYINT" property="yn"/>
+    </resultMap>
+
+    <!-- 调仓交易结果集(含用户信息) -->
+    <resultMap id="ResultMapIncludeUserInfo" type="com.snb.deal.bo.order.OrderRebalanceAdminBO">
+        <id column="id" jdbcType="BIGINT" property="id"/>
+        <result column="order_rebalance_id" jdbcType="BIGINT" property="orderRebalanceId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="order_no" jdbcType="BIGINT" property="orderNo"/>
+        <result column="account_number" jdbcType="VARCHAR" property="accountNumber"/>
+        <result column="transaction_status" jdbcType="TINYINT" property="transactionStatus"/>
+        <result column="transaction_charge" jdbcType="DECIMAL" property="transactionCharge"/>
+        <result column="merchant_number" jdbcType="VARCHAR" property="merchantNumber"/>
+        <result column="portfolio_code" jdbcType="VARCHAR" property="portfolioCode"/>
+        <result column="third_portfolio_id" jdbcType="VARCHAR" property="thirdPortfolioId"/>
+        <result column="response_code" jdbcType="VARCHAR" property="responseCode"/>
+        <result column="response_message" jdbcType="VARCHAR" property="responseMessage"/>
+        <result column="channel" jdbcType="TINYINT" property="channel"/>
+        <result column="create_time" jdbcType="TIMESTAMP" property="createTime"/>
+        <result column="update_time" jdbcType="TIMESTAMP" property="updateTime"/>
+        <result column="yn" jdbcType="TINYINT" property="yn"/>
+        <result column="phone" property="phone"/><!-- 平台手机号 -->
+        <result column="name" property="name"/>  <!-- 用户姓名 -->
+    </resultMap>
+
+    <!-- 调仓订单同步查询结果集-->
+    <resultMap id="orderRebalanceAsyncResultMap" type="com.snb.deal.bo.rebalance.OrderRebalanceAsyncBO">
+        <result column="account_number" jdbcType="BIGINT" property="accountNumber"/>
+        <result column="merchant_number" jdbcType="VARCHAR" property="merchantNumber"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="order_no" jdbcType="VARCHAR" property="orderNo"/>
+        <result column="order_rebalance_id" jdbcType="VARCHAR" property="orderRebanlanceId"/>
+        <result column="channel" jdbcType="VARCHAR" property="channel"/>
+        <result column="third_portfolio_id" jdbcType="VARCHAR" property="thirdPortfolioId"/>
+
+    </resultMap>
+
+
+    <!-- 调仓订单发送查询结果集-->
+    <resultMap id="orderRebalanceSendResultMap" type="com.snb.deal.bo.rebalance.OrderRebalanceSendBO">
+        <result column="order_rebalance_id" jdbcType="BIGINT" property="orderRebalanceId"/>
+        <result column="user_id" jdbcType="VARCHAR" property="userId"/>
+        <result column="channel" jdbcType="VARCHAR" property="channel"/>
+        <result column="account_number" jdbcType="VARCHAR" property="thirdAccountNumber"/>
+        <result column="merchant_number" jdbcType="VARCHAR" property="merchantNumber"/>
+        <result column="portfolio_code" jdbcType="VARCHAR" property="thirdPortfolioCode"/>
+        <result column="third_portfolio_id" jdbcType="VARCHAR" property="thirdPortfolioId"/>
+        <result column="order_no" jdbcType="VARCHAR" property="orderNo"/>
+    </resultMap>
+
+
+
+    <!--查询调仓订单详情列表-管理后台 -->
+    <select id="listByOrderRebalanceCondition" resultMap="ResultMapIncludeUserInfo">
+        SELECT
+            tor.id,
+            tor.order_rebalance_id,
+            tor.user_id,
+            tor.order_no,
+            tor.account_number,
+            oi.order_status as transaction_status,
+--             tor.transaction_status,
+            tor.transaction_charge,
+            tor.merchant_number,
+            tor.portfolio_code,
+            tor.third_portfolio_id,
+            tor.response_code,
+            tor.response_message,
+            tor.channel,
+            tor.create_time,
+            tor.update_time,
+            tor.yn,
+            ui.phone,
+            ui.name
+        FROM order_rebalance tor
+        INNER JOIN `user_info` ui ON tor.user_id = ui.`user_id`
+        INNER JOIN `order_info` oi ON oi.`order_no` = tor.`order_no`
+        WHERE tor.yn = 0 AND ui.yn = 0
+        <if test="phone != null and phone != ''">
+            and phone = #{phone}
+        </if>
+        <if test="merchantNumber != null and merchantNumber != ''">
+            and merchant_number = #{merchantNumber}
+        </if>
+        ORDER by tor.create_time DESC
+    </select>
+
+    <!-- 创建调仓基金调仓订单信息 -->
+    <insert id="createOrderRebalanceInfo" parameterType="com.snb.deal.entity.order.OrderRebalanceDO"
+            useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO order_rebalance (order_rebalance_id, user_id,
+                                     order_no, account_number, transaction_status,
+                                     transaction_charge,merchant_number,
+                                     third_portfolio_id, response_code, response_message,
+                                     channel,portfolio_code)
+        VALUES (#{orderRebalanceId,jdbcType=BIGINT}, #{userId,jdbcType=VARCHAR},
+                #{orderNo,jdbcType=VARCHAR}, #{accountNumber,jdbcType=VARCHAR},
+                                             #{transactionStatus,jdbcType=TINYINT},
+                                             #{transactionCharge,jdbcType=DECIMAL},
+                                             #{merchantNumber,jdbcType=VARCHAR},
+                                             #{thirdPortfolioId,jdbcType=VARCHAR}, #{responseCode,jdbcType=VARCHAR},
+                                             #{responseMessage,jdbcType=VARCHAR},
+                                             #{channel,jdbcType=TINYINT},#{portfolioCode,jdbcType=VARCHAR})
+    </insert>
+
+    <!-- 查询待同步的调仓订单 -->
+    <select id="queryOrderRebalanceAsync" resultMap="orderRebalanceAsyncResultMap">
+        SELECT
+        ori.id as ori_id,
+        ori.user_id,
+        ori.order_no,
+        orr.id as orr_id,
+        orr.account_number,
+        orr.merchant_number,
+        orr.order_rebalance_id,
+        orr.channel,
+        orr.third_portfolio_id
+        FROM order_rebalance orr ,order_info ori
+        where orr.order_no = ori.order_no
+            and ori.business_code=#{businessCode}
+            and ori.channel=#{channel}
+            and orr.transaction_status=#{transactionStatus}
+            and ori.yn=0 and orr.yn=0 limit #{pagetIndex},#{pageSize}
+    </select>
+
+
+
+
+
+    <!-- 通过调仓订单号，更新调仓订单状态 -->
+    <update id="updateOrderRebalanceBycondition" parameterType="com.snb.deal.entity.order.OrderRebalanceDO">
+        update order_rebalance set update_time = now()
+        <if test="transactionStatus!=null">
+            ,transaction_status = #{transactionStatus}
+        </if>
+        <if test="transactionCharge!=null">
+            ,transaction_charge = #{transactionCharge}
+        </if>
+        where yn=0
+        <if test="orderNo != null">
+            and order_no = #{orderNo}
+        </if>
+        <if test="orderRebalanceId != null">
+            and order_rebalance_id = #{orderRebalanceId}
+        </if>
+    </update>
+
+
+    <!-- 通过查询条件查询数量 -->
+    <select id="queryOrderRebalanceCountBycondition" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceConditionBO" resultType="Long" >
+        SELECT
+        count(1) as countNum
+        FROM order_rebalance
+        WHERE yn = 0
+
+        <if test="transactionStatus != null">
+            and transaction_status = #{transactionStatus}
+        </if>
+
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+
+        <if test="channel != null">
+            and channel = #{channel}
+        </if>
+
+    </select>
+
+
+    <!-- 通过条件查询调仓对象信息 -->
+    <select id="queryOrderRebalanceDOByCondition" parameterType="com.snb.deal.bo.rebalance.OrderRebalanceConditionBO" resultMap="BaseResultMap" >
+        SELECT
+        id,
+        order_rebalance_id,
+        user_id,
+        order_no,
+        account_number,
+        transaction_status,
+        transaction_charge,
+        merchant_number,
+        portfolio_code,
+        third_portfolio_id,
+        response_code,
+        response_message,
+        channel,
+        create_time,
+        update_time,
+        yn
+        FROM order_rebalance
+        WHERE yn = 0
+
+        <if test="transactionStatus != null">
+            and transaction_status = #{transactionStatus}
+        </if>
+
+        <if test="userId != null">
+            and user_id = #{userId}
+        </if>
+
+        <if test="channel != null">
+            and channel = #{channel}
+        </if>
+
+        <if test="orderNo != null">
+            and order_no = #{orderNo}
+        </if>
+
+        <if test="orderRebalanceId != null">
+            and order_rebalance_id = #{orderRebalanceId}
+        </if>
+
+        <if test="merchantNumber != null">
+            and merchant_number = #{merchantNumber}
+        </if>
+
+    </select>
+
+
+
+    <select id="queryByOrderNo" resultMap="BaseResultMap" parameterType="com.snb.deal.entity.order.OrderRebalanceDO" >
+        SELECT
+        id,
+        order_rebalance_id,
+        user_id,
+        order_no,
+        account_number,
+        transaction_status,
+        transaction_charge,
+        merchant_number,
+        portfolio_code,
+        third_portfolio_id,
+        response_code,
+        response_message,
+        channel,
+        create_time,
+        update_time,
+        yn
+        FROM order_rebalance
+        where order_no=#{orderNo,jdbcType=BIGINT} and yn=0
+    </select>
+
+
+
+    <!-- 查询需要发送的调仓订单 -->
+    <select id="querySendOrderRebalanceList" resultMap="orderRebalanceSendResultMap">
+        SELECT
+        orr.channel,orr.account_number,orr.merchant_number,orr.portfolio_code,
+        orr.third_portfolio_id,orr.order_rebalance_id,orr.user_id,orr.order_no
+        FROM order_rebalance orr,order_rebalance_auth ora
+        WHERE orr.yn = 0 and ora.yn=0 and
+        orr.order_rebalance_id = ora.order_rebalance_id
+        and ora.auth_status = #{authStatus} limit #{startIndex},#{count}
+    </select>
+    
+    <select id="selectByOrderRebalanceId" resultMap="BaseResultMap">
+        SELECT
+            id,
+            order_rebalance_id,
+            user_id,
+            order_no,
+            account_number,
+            transaction_status,
+            transaction_charge,
+            merchant_number,
+            portfolio_code,
+            third_portfolio_id,
+            response_code,
+            response_message,
+            channel,
+            create_time,
+            update_time,
+            yn
+        FROM order_rebalance
+        WHERE order_rebalance_id = #{orderRebalanceId} AND yn = 0
+    </select>
+
+    <!-- 查询待修复的调仓订单 -->
+    <select id="queryOrderRebalanceRepaired" resultMap="orderRebalanceAsyncResultMap">
+        SELECT
+        ori.id as ori_id,
+        ori.user_id,
+        ori.order_no,
+        orr.id as orr_id,
+        orr.account_number,
+        orr.merchant_number,
+        orr.order_rebalance_id,
+        orr.channel,
+        orr.third_portfolio_id
+        FROM order_rebalance orr ,order_info ori
+        where orr.order_no = ori.order_no
+        and ori.business_code=#{businessCode}
+        and ori.channel=#{channel}
+        and ori.yn=0 and orr.yn=0
+        and ori.send_time is not null
+        and ori.order_status != 4
+        limit #{pagetIndex},#{pageSize}
+    </select>
+
+</mapper>

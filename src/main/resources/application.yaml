@@ -1,0 +1,39 @@
+spring:
+  profiles:
+    active: test5
+
+mybatis:
+  mapper-locations: classpath:mapper/**/*.xml
+  config-location: classpath:spring/mybatisconfig.xml
+
+pagehelper:
+    helperDialect: mysql
+    reasonable: false
+    supportMethodsArguments: true
+    params: count=countSql
+
+---
+spring:
+  profiles: test5
+config:
+  configCenterPath:
+    - 10.103.27.30:2181,10.103.27.30:2182,10.103.27.30:2183/config/snb-deal/1.0.0
+    - 10.103.27.30:2181,10.103.27.30:2182,10.103.27.30:2183/config/snb-common/1.0.0
+
+---
+spring:
+  profiles: test6
+config:
+  configCenterPath:
+    - 10.103.27.30:2181,10.103.27.30:2182,10.103.27.30:2183/config/snb-deal/2.0.0
+    - 10.103.27.30:2181,10.103.27.30:2182,10.103.27.30:2183/config/snb-common/2.0.0
+
+---
+spring:
+  profiles: prod
+config:
+  configCenterPath:
+    - 172.18.29.179:2181,172.18.29.178:2181,172.18.176.232:2181/config/snb-deal/1.0.0
+    - 172.18.29.179:2181,172.18.29.178:2181,172.18.176.232:2181/config/snb-common/1.0.0
+
+
